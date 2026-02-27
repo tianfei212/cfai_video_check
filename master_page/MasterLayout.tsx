@@ -222,9 +222,9 @@ export const MasterLayout: React.FC<{ children: React.ReactNode }> = ({ children
                         to={version.path}
                         active={location.pathname === version.path}
                         onWorkClick={() => {
-                          // 点击版本的“进入工作”，以当前版本为 targetId，第一个版本为 baseId
+                          // 点击版本的"进入工作"，直接跳转到 AuditDetail 页面
                           const baseVersion = movie.versions[0];
-                          navigate('/audit-loading', { 
+                          navigate(`/audit/${version.id}`, { 
                             state: { 
                               targetId: version.id, 
                               targetName: version.name,

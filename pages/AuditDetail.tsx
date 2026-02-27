@@ -250,8 +250,8 @@ const AuditDetail: React.FC = () => {
           <div className="flex flex-col">
             <span className="text-xs font-bold tracking-tight text-white/90">差异分析工作台 · 空间对齐联动模式</span>
             <span className="text-[9px] text-gray-500 font-bold uppercase tracking-widest italic tracking-tighter">
-              {baseName || 'BASE V1.0'} VS {targetName || 'COMP V1.2'}
-            </span>
+  {baseName || 'BASE V1.0'} VS {targetName || 'COMP V1.2'}
+</span>
           </div>
         </div>
         <div className="flex gap-3">
@@ -262,6 +262,51 @@ const AuditDetail: React.FC = () => {
 
       <main className="flex-1 flex flex-col p-6 gap-6 overflow-hidden">
         {/* Timeline Area */}
+        <section className="bg-white/5 border border-white/5 rounded-[2.5rem] p-10 space-y-4 shrink-0 shadow-inner group/timeline relative overflow-hidden">
+          {renderLinkingLines()}
+          <div ref={timelineContainerRef} onMouseDown={onMouseDown} className="cursor-ew-resize relative z-10">
+            <div className="space-y-1.5 pointer-events-none mb-8">
+              <div className="h-6 w-full bg-white/5 rounded-md flex overflow-hidden relative border border-white/5 shadow-inner">
+                {BASE_SHOTS.map(shot => (
+                  <div key={shot.id} className={`${shot.color} h-full border-r border-black/20`} style={{ width: `${shot.width}%` }}></div>
+                ))}
+              </div>
+            </div>
+
+            <div className="h-12 relative flex items-center">
+               <div className="absolute inset-x-0 h-3.5 bg-[#151518] rounded-full border border-white/10 overflow-hidden shadow-[inset_0_2px_4px_rgba(0,0,0,0.8)]">
+                  {problems.map((prob) => (
+                    <div 
+                      key={prob.id}
+                      className={`absolute top-0 bottom-0 w-1 transition-all ${
+                        prob.type.includes('风险') ? 'bg-red-500 shadow-[0_0_12px_red]' : 
+                        prob.type.includes('偏移') ? 'bg-orange-500 shadow-[0_0_12px_orange]' : 'bg-cyan-400'
+                      }`}
+                      style={{ left: `${prob.progress}%` }}
+                    />
+                  ))}
+               </div>
+            </div>
+
+            <div className="space-y-1.5 pointer-events-none mt-8">
+              <div className="h-6 w-full bg-white/5 rounded-md flex overflow-hidden relative border border-white/5 shadow-inner">
+                {COMP_SHOTS.map(shot => (
+                  <div key={shot.id} className={`${shot.color} h-full border-r border-black/20`} style={{ width: `${shot.width}%` }}></div>
+                ))}
+              </div>
+            </div>
+
+            {/* Playhead */}
+            <div 
+              className={`absolute top-[-10px] bottom-[-10px] w-px z-20 pointer-events-none bg-white shadow-[0_0_15px_white]`}
+              style={{ left: `${progress}%` }}
+            >
+              <div className="absolute -top-1.5 -left-1.5 w-3 h-3 rounded-full border-2 border-black bg-white"></div>
+              <div className="absolute -bottom-1.5 -left-1.5 w-3 h-3 rounded-full border-2 border-black bg-white"></div>
+            </div>
+          </div>
+        </section>
+
         <section className="bg-white/5 border border-white/5 rounded-[2.5rem] p-10 space-y-4 shrink-0 shadow-inner group/timeline relative overflow-hidden">
           {renderLinkingLines()}
           <div ref={timelineContainerRef} onMouseDown={onMouseDown} className="cursor-ew-resize relative z-10">
