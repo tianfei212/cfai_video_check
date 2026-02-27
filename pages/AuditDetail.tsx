@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, useLocation } from 'react-router-dom';
 
 interface ShotBlock {
   id: string;
@@ -52,6 +52,8 @@ const INITIAL_PROBLEMS: BaseProblem[] = [
 const AuditDetail: React.FC = () => {
   const { id } = useParams();
   const navigate = useNavigate();
+  const location = useLocation();
+  const { baseName, targetName } = location.state || {};
   // 设置初始进度为 35.5，以便立即使问题 P2 处于激活状态并显示红框
   const [progress, setProgress] = useState(35.5);
   const [isPlaying, setIsPlaying] = useState(false);
@@ -247,7 +249,9 @@ const AuditDetail: React.FC = () => {
           </button>
           <div className="flex flex-col">
             <span className="text-xs font-bold tracking-tight text-white/90">差异分析工作台 · 空间对齐联动模式</span>
-            <span className="text-[9px] text-gray-500 font-bold uppercase tracking-widest italic tracking-tighter">BASE V1.0 VS COMP V1.2</span>
+            <span className="text-[9px] text-gray-500 font-bold uppercase tracking-widest italic tracking-tighter">
+              {baseName || 'BASE V1.0'} VS {targetName || 'COMP V1.2'}
+            </span>
           </div>
         </div>
         <div className="flex gap-3">
