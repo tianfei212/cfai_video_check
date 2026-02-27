@@ -13,24 +13,9 @@ const ProjectDetail: React.FC = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   
-  const [baseId, setBaseId] = useState<string | null>('v-100');
-  const [compareId, setCompareId] = useState<string | null>(null);
-
-  const handleSelectBase = (vid: string) => {
-    if (compareId === vid) setCompareId(null);
-    setBaseId(vid);
-  };
-
-  const handleSelectCompare = (vid: string) => {
-    if (baseId === vid) setBaseId(null);
-    setCompareId(vid);
-  };
-
   const handleViewReport = (version: FilmVersion) => {
     navigate(`/report/${version.id}`, { state: { versionName: version.versionName } });
   };
-
-  const canStartAudit = baseId && compareId;
 
   return (
     <div className="space-y-8 animate-in fade-in duration-500">
@@ -55,18 +40,6 @@ const ProjectDetail: React.FC = () => {
         </div>
         <div className="flex gap-3">
           <button 
-            disabled={!canStartAudit}
-            onClick={() => navigate(`/audit-loading`, { state: { baseId, targetId: compareId } })}
-            className={`px-6 py-3 rounded-2xl text-sm font-bold flex items-center gap-2 transition-all ${
-              canStartAudit 
-                ? 'bg-blue-600 text-white shadow-xl shadow-blue-200 hover:scale-[1.02] active:scale-95' 
-                : 'bg-gray-100 text-gray-400 cursor-not-allowed'
-            }`}
-          >
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2-2v6a2 2 0 002 2h2a2 2 0 002-2m0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
-            开始版本差异比对
-          </button>
-          <button 
             onClick={() => navigate('/import', { state: { fromProject: true, projectName: '流浪地球 3 预告片' } })}
             className="apple-button px-6 py-3 bg-black text-white text-sm font-bold shadow-xl shadow-black/10 flex items-center gap-2"
           >
@@ -78,9 +51,7 @@ const ProjectDetail: React.FC = () => {
 
       <div className="grid grid-cols-1 gap-4">
         <div className="px-4 py-2 flex items-center text-[10px] font-bold text-gray-400 uppercase tracking-[0.2em]">
-          <div className="w-[80px] flex justify-center">基准</div>
-          <div className="w-[80px] flex justify-center">对比</div>
-          <div className="flex-1 ml-4">版本信息</div>
+          <div className="flex-1">版本信息</div>
           <div className="w-1/6">提交时间</div>
           <div className="w-1/6">AI 分数 / 风险</div>
           <div className="w-1/6">审核状态</div>
@@ -88,47 +59,18 @@ const ProjectDetail: React.FC = () => {
         </div>
 
         {MOCK_VERSIONS.map((version, index) => {
-          const isBase = baseId === version.id;
-          const isCompare = compareId === version.id;
-
           return (
             <div 
               key={version.id} 
-              className={`apple-card p-6 flex items-center group transition-all duration-500 ${
-                isBase ? 'bg-blue-50/20 border-blue-200' : isCompare ? 'bg-purple-50/20 border-purple-200' : ''
-              }`}
+              className="apple-card p-6 flex items-center group transition-all duration-500"
             >
-              <div className="w-[80px] flex justify-center">
-                <button 
-                  onClick={() => handleSelectBase(version.id)}
-                  className={`w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all ${
-                    isBase ? 'border-blue-500 bg-blue-500 shadow-lg shadow-blue-200' : 'border-gray-200 hover:border-blue-300'
-                  }`}
-                >
-                  {isBase && <div className="w-2 h-2 bg-white rounded-full"></div>}
-                </button>
-              </div>
-
-              <div className="w-[80px] flex justify-center">
-                <button 
-                  onClick={() => handleSelectCompare(version.id)}
-                  className={`w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all ${
-                    isCompare ? 'border-purple-500 bg-purple-500 shadow-lg shadow-purple-200' : 'border-gray-200 hover:border-purple-300'
-                  }`}
-                >
-                  {isCompare && <div className="w-2 h-2 bg-white rounded-full"></div>}
-                </button>
-              </div>
-
-              <div className="flex-1 ml-4 flex items-center gap-4">
-                <div className={`w-10 h-10 rounded-xl flex items-center justify-center font-bold text-xs ${isBase ? 'bg-blue-600 text-white' : isCompare ? 'bg-purple-600 text-white' : 'bg-gray-50 text-gray-400'}`}>
+              <div className="flex-1 flex items-center gap-4">
+                <div className="w-10 h-10 rounded-xl flex items-center justify-center font-bold text-xs bg-gray-50 text-gray-400">
                   V{MOCK_VERSIONS.length - index}
                 </div>
                 <div>
                   <p className="font-bold text-gray-900 flex items-center gap-2">
                     {version.versionName}
-                    {isBase && <span className="px-1.5 py-0.5 bg-blue-100 text-blue-600 text-[8px] rounded uppercase tracking-tighter">Baseline</span>}
-                    {isCompare && <span className="px-1.5 py-0.5 bg-purple-100 text-purple-600 text-[8px] rounded uppercase tracking-tighter">Target</span>}
                   </p>
                   <p className="text-xs text-gray-400 line-clamp-1 mt-0.5">{version.notes}</p>
                 </div>
@@ -175,13 +117,6 @@ const ProjectDetail: React.FC = () => {
           );
         })}
       </div>
-
-      {!canStartAudit && (
-        <div className="bg-amber-50 border border-amber-100 p-4 rounded-2xl flex items-center gap-3 animate-pulse">
-           <svg className="w-5 h-5 text-amber-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-           <p className="text-xs text-amber-700 font-medium">请在上方列表中选择一个版本作为 <span className="font-bold underline">基准</span>，另一个版本作为 <span className="font-bold underline">对比对象</span>，以启动 AI 差异化分析。</p>
-        </div>
-      )}
 
       <div className="grid grid-cols-3 gap-6 pt-4">
          <div className="apple-card p-8 border-none bg-blue-50/30">

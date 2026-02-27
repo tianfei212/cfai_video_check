@@ -53,7 +53,27 @@ const AuditDetail: React.FC = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const location = useLocation();
-  const { baseName, compareVersions } = (location.state as { baseName?: string, compareVersions?: Record<string, string> }) || {};
+  
+  // 从 state 或 URL 参数中获取数据
+  const { baseName, compareVersions, isImmersive } = useMemo(() => {
+    const state = location.state as { baseName?: string, compareVersions?: Record<string, string> };
+    const searchParams = new URLSearchParams(location.search);
+    const isImmersiveParam = searchParams.get('immersive') === 'true';
+
+    if (state) return { ...state, isImmersive: isImmersiveParam };
+
+    // 尝试从 URL 查询参数获取 (用于弹出窗口)
+    const stateParam = searchParams.get('state');
+    if (stateParam) {
+      try {
+        const parsed = JSON.parse(decodeURIComponent(stateParam));
+        return { ...parsed, isImmersive: isImmersiveParam };
+      } catch (e) {
+        console.error("Failed to parse state from URL", e);
+      }
+    }
+    return { isImmersive: isImmersiveParam };
+  }, [location.state, location.search]);
   
   // 状态：当前选中的比对版本 ID
   const [selectedCompareId, setSelectedCompareId] = useState<string>('');
@@ -75,6 +95,15 @@ const AuditDetail: React.FC = () => {
     if (compareVersions && selectedCompareId) {
       setTargetName(compareVersions[selectedCompareId]);
     }
+  };
+
+  // 弹出新页面功能
+  const handlePopOut = () => {
+    const stateStr = encodeURIComponent(JSON.stringify({ 
+      baseName, 
+      compareVersions 
+    }));
+    window.open(`#/audit/${id}?immersive=true&state=${stateStr}`, '_blank');
   };
 
   // 添加版本选择按键的状态控制
@@ -281,13 +310,13 @@ const AuditDetail: React.FC = () => {
   };
 
   return (
-    <div className="fixed inset-0 bg-[#0A0A0B] text-white flex flex-col font-sans overflow-hidden select-none">
+    <div className={`flex flex-col flex-1 bg-[#0A0A0B] text-white font-sans overflow-hidden select-none ${isImmersive ? 'h-screen' : 'rounded-[2.5rem] shadow-2xl'}`}>
       {/* Header */}
-      <header className="h-14 border-b border-white/5 flex items-center justify-between px-6 bg-black/40 backdrop-blur-md z-30">
+      <header className={`h-14 border-b border-white/5 flex items-center justify-between px-6 bg-black/40 backdrop-blur-md z-10 ${isImmersive ? '' : 'rounded-t-[2.5rem]'}`}>
         <div className="flex items-center gap-6">
-          <button onClick={() => navigate(-1)} className="p-1.5 hover:bg-white/10 rounded-lg transition-colors text-gray-400">
+          {/* <button onClick={() => navigate(-1)} className="p-1.5 hover:bg-white/10 rounded-lg transition-colors text-gray-400">
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 19l-7-7 7-7"/></svg>
-          </button>
+          </button> */}
           <div className="flex flex-col">
             <span className="text-xs font-bold tracking-tight text-white/90">差异分析工作台 · 空间对齐联动模式</span>
             <span className="text-[9px] text-gray-500 font-bold uppercase tracking-widest italic tracking-tighter">
@@ -295,10 +324,24 @@ const AuditDetail: React.FC = () => {
             </span>
           </div>
         </div>
-       
+
+        <div className="flex items-center gap-3">
+          <button 
+            onClick={handlePopOut}
+            className="p-2 hover:bg-white/10 rounded-lg transition-all text-gray-400 hover:text-white group relative"
+            title="在新窗口中打开"
+          >
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+            </svg>
+            <span className="absolute -bottom-8 left-1/2 -translate-x-1/2 px-2 py-1 bg-black/80 text-[10px] text-white rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none border border-white/10">
+              新窗口打开
+            </span>
+          </button>
+        </div>
       </header>
 
-      <main className="flex-1 flex flex-col p-6 gap-6 overflow-hidden">
+      <main className="flex-1 flex flex-col p-4 lg:p-6 gap-6 overflow-hidden">
         {/* 下面的内容是多版本的选择 */}
         <div className="relative">
         {compareVersions && Object.keys(compareVersions).length > 0 && (

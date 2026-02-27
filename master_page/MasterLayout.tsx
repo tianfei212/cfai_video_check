@@ -270,16 +270,16 @@ export const MasterLayout: React.FC<{ children: React.ReactNode }> = ({ children
         </aside>
 
         {/* 右侧内容区 - 宽度自适应 */}
-        <div className={`flex-1 flex flex-col overflow-y-auto no-scrollbar transition-all duration-500 ease-in-out`}>
-          <main className="flex-1 p-6 lg:p-10">
-            <div className="max-w-7xl mx-auto">
+        <div className={`flex-1 flex flex-col h-full overflow-hidden transition-all duration-500 ease-in-out`}>
+          <main className="flex-1 p-4 lg:p-6 overflow-y-auto no-scrollbar">
+            <div className="w-full h-full flex flex-col">
               {children}
             </div>
           </main>
 
           {/* 页脚 Footer */}
-          <footer className="px-10 py-6 border-t border-gray-100 bg-white/50 backdrop-blur-sm">
-            <div className="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-4">
+          <footer className="px-6 py-4 border-t border-gray-100 bg-white/50 backdrop-blur-sm">
+            <div className="w-full flex flex-col md:flex-row justify-between items-center gap-4">
               <div className="flex flex-col items-center md:items-start text-[10px] text-gray-300 font-bold uppercase tracking-widest">
                 <span>China Academy of Film Artificial Intelligence</span>
               </div>
