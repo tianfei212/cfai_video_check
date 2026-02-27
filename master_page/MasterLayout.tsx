@@ -223,13 +223,17 @@ export const MasterLayout: React.FC<{ children: React.ReactNode }> = ({ children
                         active={location.pathname === version.path}
                         onWorkClick={() => {
                           // 点击版本的"进入工作"，直接跳转到 AuditDetail 页面
-                          const baseVersion = movie.versions[0];
+                          // 将当前选择的版本作为 baseId 和 baseName
+                          // 将该电影下的其他版本以 JSON 列表 (Map) 的方式传入，key 为 ID，value 为 name
+                          const otherVersions = movie.versions
+                            .filter(v => v.id !== version.id)
+                            .reduce((acc, v) => ({ ...acc, [v.id]: v.name }), {});
+
                           navigate(`/audit/${version.id}`, { 
                             state: { 
-                              targetId: version.id, 
-                              targetName: version.name,
-                              baseId: baseVersion.id,
-                              baseName: baseVersion.name
+                              baseId: version.id, 
+                              baseName: version.name,
+                              compareVersions: otherVersions
                             } 
                           });
                         }}
