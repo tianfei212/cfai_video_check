@@ -121,6 +121,7 @@ export const MasterLayout: React.FC<{ children: React.ReactNode }> = ({ children
       versions: [
         { id: 'v1', name: '预告片 v1.0', path: '/video-analysis/1' },
         { id: 'v2', name: '正片 剪辑版 A', path: '/video-analysis/2' },
+        { id: 'v3', name: '正片 剪辑版 B', path: '/video-analysis/3' },
       ]
     },
     {

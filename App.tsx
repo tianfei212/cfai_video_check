@@ -24,6 +24,7 @@ const AppContent: React.FC = () => {
   const isLoginPage = location.pathname === '/login';
   const isImmersivePage = 
     location.pathname.startsWith('/analysis/') || 
+    location.pathname.startsWith('/audit/') ||
     location.pathname.startsWith('/final-confirm/') ||
     location.pathname.startsWith('/audit-loading') ||
     location.pathname.startsWith('/report/');
