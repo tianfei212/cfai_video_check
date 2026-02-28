@@ -1,0 +1,17 @@
+{
+  "defaultDemoId": "demo-default",
+  "demos": [
+    {
+      "id": "demo-default",
+      "name": "默认演示数据",
+      "typeJsonUrl": "/data/type.json",
+      "videoBaseUrl": "/data/video_input",
+      "thumbnailBaseUrl": "/videos",
+      "videoFilesByVersionId": {
+        "v-102": "v-102.mp4",
+        "v-101": "v-101.mp4",
+        "v-100": "v-103.mp4"
+      }
+    }
+  ]
+}
