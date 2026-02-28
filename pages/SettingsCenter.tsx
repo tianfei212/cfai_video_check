@@ -1,6 +1,7 @@
 
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 
 const PRESET_COLORS = [
   { name: 'Obsidian', hex: '#1D1D1F' },
@@ -11,31 +12,67 @@ const PRESET_COLORS = [
 ];
 
 const SettingsCenter: React.FC = () => {
+  const { t, i18n } = useTranslation();
   const navigate = useNavigate();
   const [radius, setRadius] = useState(20);
   const [primaryColor, setPrimaryColor] = useState('#1D1D1F');
   const [bgMode, setBgMode] = useState('mesh'); // pure, glass, mesh
   const [density, setDensity] = useState('relaxed'); // compact, standard, relaxed
 
+  const changeLanguage = (lng: string) => {
+    i18n.changeLanguage(lng);
+  };
+
   return (
     <div className="space-y-10 animate-in fade-in duration-700 max-w-6xl mx-auto pb-20">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight text-[#1D1D1F]">系统偏好设置</h1>
-          <p className="text-gray-400 mt-1">个性化您的工作空间，调整 UI 视觉风格与交互体验</p>
+          <h1 className="text-3xl font-bold tracking-tight text-[#1D1D1F]">{t("系统偏好设置")}</h1>
+          <p className="text-gray-400 mt-1">{t("个性化您的工作空间，调整 UI 视觉风格与交互体验")}</p>
         </div>
         <div className="flex gap-3">
-          <button className="px-6 py-3 bg-white border border-gray-100 rounded-2xl text-xs font-bold hover:bg-gray-50 transition-all">恢复默认</button>
-          <button className="px-8 py-3 bg-black text-white rounded-2xl text-xs font-bold shadow-xl shadow-black/10 hover:scale-[1.02] transition-all">应用更改</button>
+          <button className="px-6 py-3 bg-white border border-gray-100 rounded-2xl text-xs font-bold hover:bg-gray-50 transition-all">{t("恢复默认")}</button>
+          <button className="px-8 py-3 bg-black text-white rounded-2xl text-xs font-bold shadow-xl shadow-black/10 hover:scale-[1.02] transition-all">{t("应用更改")}</button>
         </div>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-10">
         {/* 左侧配置项 */}
         <div className="lg:col-span-2 space-y-8">
+          {/* 语言设置 */}
+          <section className="apple-card p-8 border-none shadow-sm bg-white">
+            <h3 className="text-sm font-bold text-gray-400 uppercase tracking-widest mb-8">{t("语言与地区 (Language & Region)")}</h3>
+            
+            <div className="grid grid-cols-2 gap-4">
+              <button 
+                onClick={() => changeLanguage('zh')}
+                className={`p-6 rounded-3xl border-2 transition-all text-left group ${i18n.language.startsWith('zh') ? 'border-black bg-gray-50' : 'border-gray-50 bg-white hover:border-gray-200'}`}
+              >
+                <div className="flex items-center justify-between mb-4">
+                  <span className="text-2xl">🇨🇳</span>
+                  {i18n.language.startsWith('zh') && <div className="w-2 h-2 bg-black rounded-full" />}
+                </div>
+                <p className="text-xs font-bold text-[#1D1D1F]">简体中文</p>
+                <p className="text-[10px] text-gray-400 mt-1 font-medium">Chinese (Simplified)</p>
+              </button>
+              
+              <button 
+                onClick={() => changeLanguage('en')}
+                className={`p-6 rounded-3xl border-2 transition-all text-left group ${i18n.language.startsWith('en') ? 'border-black bg-gray-50' : 'border-gray-50 bg-white hover:border-gray-200'}`}
+              >
+                <div className="flex items-center justify-between mb-4">
+                  <span className="text-2xl">🇺🇸</span>
+                  {i18n.language.startsWith('en') && <div className="w-2 h-2 bg-black rounded-full" />}
+                </div>
+                <p className="text-xs font-bold text-[#1D1D1F]">English</p>
+                <p className="text-[10px] text-gray-400 mt-1 font-medium">English (United States)</p>
+              </button>
+            </div>
+          </section>
+
           {/* 视觉风格 */}
           <section className="apple-card p-8 border-none shadow-sm bg-white">
-            <h3 className="text-sm font-bold text-gray-400 uppercase tracking-widest mb-8">视觉样式 (Visual Style)</h3>
+            <h3 className="text-sm font-bold text-gray-400 uppercase tracking-widest mb-8">{t("视觉样式 (Visual Style)")}</h3>
             
             <div className="space-y-10">
               {/* 圆角弧度 */}

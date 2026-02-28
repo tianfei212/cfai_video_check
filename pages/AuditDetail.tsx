@@ -1,6 +1,7 @@
 
 import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 
 interface ShotBlock {
   id: string;
@@ -27,29 +28,31 @@ interface BaseProblem {
   box?: BoundingBox; 
 }
 
-const BASE_SHOTS: ShotBlock[] = [
-  { id: 'b1', start: 0, width: 15, color: 'bg-green-500/40', type: '正常' },
-  { id: 'b2', start: 15, width: 20, color: 'bg-orange-500/40', type: '变动' },
-  { id: 'b3', start: 35, width: 10, color: 'bg-red-500/40', type: '敏感' },
-  { id: 'b4', start: 45, width: 55, color: 'bg-blue-500/40', type: '正常' },
-];
-
-const COMP_SHOTS: ShotBlock[] = [
-  { id: 'c1', start: 0, width: 15, color: 'bg-green-500/40', type: '正常' },
-  { id: 'c2', start: 15, width: 20, color: 'bg-orange-500/40', type: '变动' },
-  { id: 'c3', start: 35, width: 10, color: 'bg-green-500/40', type: '已修正' },
-  { id: 'c4', start: 45, width: 55, color: 'bg-blue-500/40', type: '正常' },
-];
-
-const INITIAL_PROBLEMS: BaseProblem[] = [
-  { id: 'p1', timecode: '00:00:15:04', type: '像素偏移', description: 'Base 与 Comp 版本在边缘存在 2px 的亚像素位移', frames: 'F364 - F382', progress: 15.2, box: { x: 45, y: 30, w: 20, h: 25 } },
-  { id: 'p2', timecode: '00:00:35:12', type: '内容风险', description: '检测到未授权的背景品牌 Logo (置信度 94%)', frames: 'F840 - F910', progress: 35.5, box: { x: 25, y: 25, w: 25, h: 20 } },
-  { id: 'p3', timecode: '00:00:42:01', type: '色彩断层', description: '暗部区域存在明显的 8bit 压缩带来的色阶断层', frames: 'F1008 - F1050', progress: 42.1, box: { x: 60, y: 55, w: 30, h: 20 } },
-  { id: 'p4', timecode: '00:01:12:18', type: '画质抖动', description: '高频纹理区域出现 AI 插帧导致的动态伪影', frames: 'F1728 - F1756', progress: 72.8, box: { x: 30, y: 45, w: 25, h: 30 } },
-  { id: 'p5', timecode: '00:02:05:09', type: '物体消失', description: '特效渲染层漏失：背景远景建筑未正常渲染', frames: 'F3000 - F3040', progress: 85.0, box: { x: 70, y: 15, w: 15, h: 12 } },
-];
-
 const AuditDetail: React.FC = () => {
+  const { t } = useTranslation();
+
+  const BASE_SHOTS: ShotBlock[] = [
+    { id: 'b1', start: 0, width: 15, color: 'bg-green-500/40', type: t('正常') },
+    { id: 'b2', start: 15, width: 20, color: 'bg-orange-500/40', type: t('变动') },
+    { id: 'b3', start: 35, width: 10, color: 'bg-red-500/40', type: t('敏感') },
+    { id: 'b4', start: 45, width: 55, color: 'bg-blue-500/40', type: t('正常') },
+  ];
+
+  const COMP_SHOTS: ShotBlock[] = [
+    { id: 'c1', start: 0, width: 15, color: 'bg-green-500/40', type: t('正常') },
+    { id: 'c2', start: 15, width: 20, color: 'bg-orange-500/40', type: t('变动') },
+    { id: 'c3', start: 35, width: 10, color: 'bg-green-500/40', type: t('已修正') },
+    { id: 'c4', start: 45, width: 55, color: 'bg-blue-500/40', type: t('正常') },
+  ];
+
+  const INITIAL_PROBLEMS: BaseProblem[] = [
+    { id: 'p1', timecode: '00:00:15:04', type: t('像素偏移'), description: t('Base 与 Comp 版本在边缘存在 2px 的亚像素位移'), frames: 'F364 - F382', progress: 15.2, box: { x: 45, y: 30, w: 20, h: 25 } },
+    { id: 'p2', timecode: '00:00:35:12', type: t('内容风险'), description: t('检测到未授权的背景品牌 Logo (置信度 94%)'), frames: 'F840 - F910', progress: 35.5, box: { x: 25, y: 25, w: 25, h: 20 } },
+    { id: 'p3', timecode: '00:00:42:01', type: t('色彩断层'), description: t('暗部区域存在明显的 8bit 压缩带来的色阶断层'), frames: 'F1008 - F1050', progress: 42.1, box: { x: 60, y: 55, w: 30, h: 20 } },
+    { id: 'p4', timecode: '00:01:12:18', type: t('画质抖动'), description: t('高频纹理区域出现 AI 插帧导致的动态伪影'), frames: 'F1728 - F1756', progress: 72.8, box: { x: 30, y: 45, w: 25, h: 30 } },
+    { id: 'p5', timecode: '00:02:05:09', type: t('物体消失'), description: t('特效渲染层漏失：背景远景建筑未正常渲染'), frames: 'F3000 - F3040', progress: 85.0, box: { x: 70, y: 15, w: 15, h: 12 } },
+  ];
+
   const { id } = useParams();
   const navigate = useNavigate();
   const location = useLocation();
@@ -318,7 +321,7 @@ const AuditDetail: React.FC = () => {
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 19l-7-7 7-7"/></svg>
           </button> */}
           <div className="flex flex-col">
-            <span className="text-xs font-bold tracking-tight text-white/90">差异分析工作台 · 空间对齐联动模式</span>
+            <span className="text-xs font-bold tracking-tight text-white/90">{t("差异分析工作台 · 空间对齐联动模式")}</span>
             <span className="text-[9px] text-gray-500 font-bold uppercase tracking-widest italic tracking-tighter">
               {baseName || 'BASE'} VS {targetName || 'COMP'}
             </span>
@@ -329,13 +332,13 @@ const AuditDetail: React.FC = () => {
           <button 
             onClick={handlePopOut}
             className="p-2 hover:bg-white/10 rounded-lg transition-all text-gray-400 hover:text-white group relative"
-            title="在新窗口中打开"
+            title={t("在新窗口中打开")}
           >
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
             </svg>
             <span className="absolute -bottom-8 left-1/2 -translate-x-1/2 px-2 py-1 bg-black/80 text-[10px] text-white rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none border border-white/10">
-              新窗口打开
+              {t("新窗口打开")}
             </span>
           </button>
         </div>
@@ -394,7 +397,7 @@ const AuditDetail: React.FC = () => {
                     : 'bg-blue-600 hover:bg-blue-500 shadow-blue-600/20 cursor-pointer'
                   }`}
               >
-                加载比对版本
+                {t("加载比对版本")}
           </button>
           </div>
         )}
@@ -429,7 +432,7 @@ const AuditDetail: React.FC = () => {
     <div className="bg-black/20 border border-white/10 rounded-2xl p-5 shadow-sm flex flex-col gap-3">
        <div className="flex justify-start">
           <div className="px-2 py-0.5 bg-orange-600 w-fit rounded text-[9px] font-bold text-white uppercase tracking-wider">
-              AI 自动对比时间索引
+              {t("AI 自动对比时间索引")}
             </div>
       </div>
       <div className="h-12 relative flex items-center">
@@ -460,7 +463,7 @@ const AuditDetail: React.FC = () => {
             
             {/* 标题 */}
             <p className="text-sm font-bold text-gray-300 tracking-widest">
-              正在对比，您可以关闭窗口，自动对比完成后将用站内信通知您<span className="animate-pulse">......</span>
+              {t("正在对比，您可以关闭窗口，自动对比完成后将用站内信通知您")}<span className="animate-pulse">......</span>
             </p>
 
             {/* 进度条 */}
@@ -515,14 +518,14 @@ const AuditDetail: React.FC = () => {
              className="px-6 py-2 bg-white/10 border border-white/20 rounded-xl text-xs font-bold text-white hover:bg-white/20 transition-all flex items-center gap-2"
            >
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
-              {baseName || 'Base'} 影片分析
+              {baseName || 'Base'} {t("影片分析")}
           </button>
            <button onClick={() => setIsPlaying(!isPlaying)} className={`flex items-center gap-3 px-8 py-3 rounded-2xl font-bold text-xs transition-all shadow-xl ${isPlaying ? 'bg-orange-500 text-white' : 'bg-white text-black hover:scale-105 active:scale-95'}`}>
-              {isPlaying ? '暂停推理' : '自动播放'}
+              {isPlaying ? t('暂停推理') : t('自动播放')}
            </button>
            <button onClick={() => setShowProblemList(true)} className="px-6 py-2 bg-white/10 border border-white/20 rounded-xl text-xs font-bold text-white hover:bg-white/20 transition-all flex items-center gap-2">
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
-              异常索引
+              {t("异常索引")}
            </button>
            {!isLoading && isConfirmed && (
              <>
@@ -531,10 +534,10 @@ const AuditDetail: React.FC = () => {
                   className="px-6 py-2 bg-white/10 border border-white/20 rounded-xl text-xs font-bold text-white hover:bg-white/20 transition-all flex items-center gap-2"
                 >
                   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"/></svg>
-                  {targetName || 'Comp'} 影片分析
+                  {targetName || 'Comp'} {t("影片分析")}
                 </button>
-                <button className="px-4 py-1.5 bg-white/5 border border-white/10 rounded-lg text-[10px] font-bold hover:bg-white/10 transition-all uppercase tracking-widest">导出数据</button>
-                <button onClick={() => navigate(`/final-confirm/${id}`)} className="px-6 py-1.5 bg-blue-600 text-white rounded-lg text-[10px] font-bold shadow-lg shadow-blue-600/20 active:scale-95 transition-all uppercase tracking-widest">确认审定</button>
+                <button className="px-4 py-1.5 bg-white/5 border border-white/10 rounded-lg text-[10px] font-bold hover:bg-white/10 transition-all uppercase tracking-widest">{t("导出数据")}</button>
+                <button onClick={() => navigate(`/final-confirm/${id}`)} className="px-6 py-1.5 bg-blue-600 text-white rounded-lg text-[10px] font-bold shadow-lg shadow-blue-600/20 active:scale-95 transition-all uppercase tracking-widest">{t("确认审定")}</button>
              </>
            )}
          
@@ -561,7 +564,7 @@ const AuditDetail: React.FC = () => {
                 {/* 触发红色 HUB 探测框 */}
                 {activeProblem?.box && renderSpatialHub(activeProblem.box, 'hub')}
                 
-                <div className="absolute top-6 left-1/2 -translate-x-1/2 px-4 py-1.5 bg-cyan-600/90 backdrop-blur-md rounded-2xl text-[10px] font-black text-white shadow-2xl border border-white/20 tracking-[0.2em] uppercase text-center">不同点叠加显示</div>
+                <div className="absolute top-6 left-1/2 -translate-x-1/2 px-4 py-1.5 bg-cyan-600/90 backdrop-blur-md rounded-2xl text-[10px] font-black text-white shadow-2xl border border-white/20 tracking-[0.2em] uppercase text-center">{t("不同点叠加显示")}</div>
              </div>
           </div>
 
@@ -580,12 +583,12 @@ const AuditDetail: React.FC = () => {
          <div className="flex items-center gap-4">
             <span className="text-[10px] font-bold text-gray-500 uppercase tracking-widest">AI Status</span>
             <div className={`px-3 py-1 rounded-lg text-[10px] font-bold uppercase ${activeProblem ? 'bg-red-500/10 text-red-400 border border-red-500/20' : 'bg-green-500/10 text-green-400 border border-green-500/20'}`}>
-               {activeProblem ? `Detected: ${activeProblem.description}` : 'Pixel Alignment Locked'}
+               {activeProblem ? `${t("Detected")}: ${t(activeProblem.description)}` : t('Pixel Alignment Locked')}
             </div>
          </div>
          <div className="flex items-center gap-6 text-[10px] font-bold uppercase font-mono">
-            <span>TC: {Math.floor((progress/100)*23904)} FRAMES</span>
-            <span>Accuracy: 99.8%</span>
+            <span>TC: {Math.floor((progress/100)*23904)} {t("FRAMES")}</span>
+            <span>{t("Accuracy")}: 99.8%</span>
          </div>
       </footer>
 
@@ -593,7 +596,7 @@ const AuditDetail: React.FC = () => {
         <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 backdrop-blur-2xl animate-in fade-in duration-500">
            <div className="w-full max-w-4xl bg-[#141417] border border-white/10 rounded-[3rem] shadow-3xl flex flex-col overflow-hidden max-h-[80vh] animate-in zoom-in-95 duration-500">
               <div className="p-10 border-b border-white/5 flex justify-between items-center bg-white/5">
-                 <h2 className="text-3xl font-bold tracking-tight">异常空间点索引</h2>
+                 <h2 className="text-3xl font-bold tracking-tight">{t("异常空间点索引")}</h2>
                  <button onClick={() => setShowProblemList(false)} className="p-3 hover:bg-white/10 rounded-2xl transition-all">
                     <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"/></svg>
                  </button>
@@ -606,10 +609,10 @@ const AuditDetail: React.FC = () => {
                              <td className="px-10 py-8 font-mono font-bold text-cyan-400">{prob.timecode}</td>
                              <td className="px-10 py-8">
                                 <span className={`px-2 py-1 rounded text-[9px] font-bold uppercase ${prob.type.includes('风险') ? 'bg-red-500/20 text-red-400' : 'bg-orange-500/20 text-orange-400'}`}>
-                                   {prob.type}
+                                   {t(prob.type)}
                                 </span>
                              </td>
-                             <td className="px-10 py-8 text-sm text-gray-300 leading-relaxed">{prob.description}</td>
+                             <td className="px-10 py-8 text-sm text-gray-300 leading-relaxed">{t(prob.description)}</td>
                           </tr>
                        ))}
                     </tbody>

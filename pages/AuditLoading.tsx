@@ -1,8 +1,10 @@
 
 import React, { useEffect, useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 
 const AuditLoading: React.FC = () => {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const location = useLocation();
   const [progress, setProgress] = useState(0);
@@ -55,9 +57,9 @@ const AuditLoading: React.FC = () => {
         </div>
 
         <div className="text-center mb-10 space-y-2">
-           <h2 className="text-2xl font-bold tracking-tight text-white/90">正在初始化像素级差异对比</h2>
+           <h2 className="text-2xl font-bold tracking-tight text-white/90">{t("正在初始化像素级差异对比")}</h2>
            <p className="text-xs text-gray-500 font-bold uppercase tracking-[0.3em] italic animate-pulse">
-             CAF-Diff 深度学习引擎正在提取特征向量...
+             {t("CAF-Diff 深度学习引擎正在提取特征向量...")}
            </p>
         </div>
 
@@ -70,7 +72,7 @@ const AuditLoading: React.FC = () => {
               ></div>
            </div>
            <div className="flex justify-between items-center px-1">
-              <span className="text-[10px] font-mono text-gray-600 uppercase tracking-tighter">Analyzing frames</span>
+              <span className="text-[10px] font-mono text-gray-600 uppercase tracking-tighter">{t("Analyzing frames")}</span>
               <span className="text-[10px] font-mono text-blue-400 font-bold">{Math.round(progress)}%</span>
            </div>
         </div>
