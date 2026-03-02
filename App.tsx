@@ -18,6 +18,7 @@ import AuditHistory from './pages/AuditHistory';
 import NotificationManagement from './pages/NotificationManagement';
 import SettingsCenter from './pages/SettingsCenter';
 import { MasterLayout } from './master_page/MasterLayout';
+import Matchbox from './pages/Matchbox';
 
 const AppContent: React.FC = () => {
   const location = useLocation();
@@ -28,6 +29,7 @@ const AppContent: React.FC = () => {
   const isImmersivePage = 
     isImmersiveQuery ||
     location.pathname.startsWith('/analysis/') || 
+    location.pathname.startsWith('/matchbox') ||
     location.pathname.startsWith('/final-confirm/') ||
     location.pathname.startsWith('/audit-loading') ||
     location.pathname.startsWith('/report/');
@@ -43,6 +45,7 @@ const AppContent: React.FC = () => {
       <Route path="/auto-tasks" element={<AutoTasks />} />
       <Route path="/keyframes/:id" element={<KeyframeAnalysis />} />
       <Route path="/analysis/:id" element={<VideoAnalysis />} />
+      <Route path="/matchbox" element={<Matchbox />} />
       <Route path="/final-confirm/:id" element={<FinalReviewConfirmation />} />
       <Route path="/audit/:id" element={<AuditDetail />} />
       <Route path="/audit/history" element={<AuditHistory />} />

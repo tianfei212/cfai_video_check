@@ -1,6 +1,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 
 interface TaskProgress {
   import: number;
@@ -9,6 +10,7 @@ interface TaskProgress {
 }
 
 const AutoTasks: React.FC = () => {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const location = useLocation();
   const isFromProject = location.state?.fromProject;
@@ -84,13 +86,13 @@ const AutoTasks: React.FC = () => {
     <div className="max-w-7xl mx-auto py-10 animate-in fade-in duration-700">
       <div className="mb-12 flex justify-between items-end px-2">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight mb-2 text-[#1D1D1F]">自动化任务监测</h1>
-          <p className="text-gray-400">正在实时监控云端 GPU 推理集群的合规性审核流水线</p>
+          <h1 className="text-3xl font-bold tracking-tight mb-2 text-[#1D1D1F]">{t("自动化任务监测")}</h1>
+          <p className="text-gray-400">{t("正在实时监控云端 GPU 推理集群的合规性审核流水线")}</p>
         </div>
         <div className="flex items-center gap-3 px-4 py-2 bg-gray-50 border border-gray-100 rounded-xl">
            <div className={`w-2 h-2 rounded-full ${isFinished ? 'bg-green-500' : 'bg-blue-500 animate-pulse'}`}></div>
            <span className="text-[10px] font-bold uppercase tracking-widest text-gray-500">
-             {isFinished ? '已就绪 (READY)' : '后台处理中 (PROCESSING)'}
+             {isFinished ? t('已就绪 (READY)') : t('后台处理中 (PROCESSING)')}
            </span>
         </div>
       </div>
@@ -101,11 +103,11 @@ const AutoTasks: React.FC = () => {
           <table className="w-full text-left min-w-[1000px]">
             <thead>
               <tr className="border-b border-gray-50 bg-gray-50/30">
-                <th className="px-8 py-6 text-[10px] font-bold text-gray-400 uppercase tracking-widest">影片项目项</th>
-                <th className="px-8 py-6 text-[10px] font-bold text-gray-400 uppercase tracking-widest">当前版本</th>
-                <th className="px-8 py-6 text-[10px] font-bold text-gray-400 uppercase tracking-widest">导入预处理</th>
-                <th className="px-8 py-6 text-[10px] font-bold text-gray-400 uppercase tracking-widest">自动切分 (约 2H)</th>
-                <th className="px-8 py-6 text-[10px] font-bold text-gray-400 uppercase tracking-widest">内容自检 (约 5H)</th>
+                <th className="px-8 py-6 text-[10px] font-bold text-gray-400 uppercase tracking-widest">{t("影片项目项")}</th>
+                <th className="px-8 py-6 text-[10px] font-bold text-gray-400 uppercase tracking-widest">{t("当前版本")}</th>
+                <th className="px-8 py-6 text-[10px] font-bold text-gray-400 uppercase tracking-widest">{t("导入预处理")}</th>
+                <th className="px-8 py-6 text-[10px] font-bold text-gray-400 uppercase tracking-widest">{t("自动切分 (约 2H)")}</th>
+                <th className="px-8 py-6 text-[10px] font-bold text-gray-400 uppercase tracking-widest">{t("内容自检 (约 5H)")}</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-50">
@@ -162,8 +164,8 @@ const AutoTasks: React.FC = () => {
           </div>
           <p className="text-sm text-gray-600 font-medium leading-relaxed italic">
             {isFinished 
-              ? (isFromProject ? "新版本文件已成功预处理。切片索引已入库，您可以进入下一步核验版本信息。" : "任务流处理已圆满结束。云端切片索引与内容特征向量已入库，请点击下方按钮进行最后的信息确认。")
-              : (isFromProject ? "系统正在加速处理新版本的云端切分，内容自检环节已根据您的策略暂时关闭。" : "系统正调用云端 A100 集群进行深度解析。由于影片时长较大，自动切分与检测过程预计需要数小时，请稍后查收通知或保持页面开启。")}
+              ? (isFromProject ? t("新版本文件已成功预处理。切片索引已入库，您可以进入下一步核验版本信息。") : t("任务流处理已圆满结束。云端切片索引与内容特征向量已入库，请点击下方按钮进行最后的信息确认。"))
+              : (isFromProject ? t("系统正在加速处理新版本的云端切分，内容自检环节已根据您的策略暂时关闭。") : t("系统正调用云端 A100 集群进行深度解析。由于影片时长较大，自动切分与检测过程预计需要数小时，请稍后查收通知或保持页面开启。"))}
           </p>
         </div>
 
@@ -172,7 +174,7 @@ const AutoTasks: React.FC = () => {
             onClick={() => navigate('/list')}
             className="px-10 py-4 text-sm font-bold text-gray-400 hover:text-black transition-colors"
           >
-            返回工作台
+            {t("返回工作台")}
           </button>
           <button 
             disabled={!isFinished}
@@ -183,7 +185,7 @@ const AutoTasks: React.FC = () => {
                 : 'bg-gray-100 text-gray-300 cursor-not-allowed border border-gray-200'
             }`}
           >
-            <span>{isFinished ? '进入信息核验环节' : '自动任务处理中...'}</span>
+            <span>{isFinished ? t('进入信息核验环节') : t('自动任务处理中...')}</span>
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7"/></svg>
           </button>
         </div>

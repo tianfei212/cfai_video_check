@@ -1,5 +1,6 @@
 
 import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 
 interface VersionIssue {
   id: string;
@@ -52,6 +53,7 @@ const MOCK_COMPARISON_LOGS: Record<string, ComparisonLog[]> = {
 };
 
 const AuditHistory: React.FC = () => {
+  const { t } = useTranslation();
   const [selectedFilmId, setSelectedFilmId] = useState(MOCK_FILMS[0].id);
 
   const currentIssues = MOCK_VERSION_ISSUES[selectedFilmId] || [];
@@ -62,18 +64,18 @@ const AuditHistory: React.FC = () => {
       {/* 顶部筛选区 */}
       <div className="flex items-center justify-between px-2">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight text-[#1D1D1F]">审核日志</h1>
-          <p className="text-gray-400 mt-1">追溯影片各版本内容检测结果与比对历史</p>
+          <h1 className="text-3xl font-bold tracking-tight text-[#1D1D1F]">{t("审核日志")}</h1>
+          <p className="text-gray-400 mt-1">{t("追溯影片各版本内容检测结果与比对历史")}</p>
         </div>
         <div className="flex items-center gap-4">
-          <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">选择关联影片</label>
+          <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">{t("选择关联影片")}</label>
           <select 
             value={selectedFilmId}
             onChange={(e) => setSelectedFilmId(e.target.value)}
             className="bg-white border border-gray-100 rounded-2xl px-6 py-3 text-sm font-bold shadow-sm focus:ring-4 focus:ring-black/5 outline-none cursor-pointer min-w-[240px]"
           >
             {MOCK_FILMS.map(film => (
-              <option key={film.id} value={film.id}>{film.title}</option>
+              <option key={film.id} value={film.id}>{t(film.title)}</option>
             ))}
           </select>
         </div>
@@ -84,20 +86,20 @@ const AuditHistory: React.FC = () => {
         <div className="px-10 py-6 border-b border-gray-50 flex items-center justify-between bg-gray-900 text-white">
           <div className="flex items-center gap-3">
             <svg className="w-5 h-5 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012-2"/></svg>
-            <h3 className="text-sm font-bold uppercase tracking-widest">全版本内容审核记录 (Audit Items)</h3>
+            <h3 className="text-sm font-bold uppercase tracking-widest">{t("全版本内容审核记录 (Audit Items)")}</h3>
           </div>
-          <span className="text-[10px] font-bold opacity-40 uppercase tracking-widest">基于 AI 特征向量全量检测</span>
+          <span className="text-[10px] font-bold opacity-40 uppercase tracking-widest">{t("基于 AI 特征向量全量检测")}</span>
         </div>
         <div className="overflow-x-auto">
           <table className="w-full text-left">
             <thead>
               <tr className="bg-gray-50/50 border-b border-gray-100">
-                <th className="px-10 py-5 text-[10px] font-bold text-gray-400 uppercase tracking-widest">版本</th>
-                <th className="px-10 py-5 text-[10px] font-bold text-gray-400 uppercase tracking-widest">时间轴 (TC)</th>
-                <th className="px-10 py-5 text-[10px] font-bold text-gray-400 uppercase tracking-widest">问题类别</th>
-                <th className="px-10 py-5 text-[10px] font-bold text-gray-400 uppercase tracking-widest">描述信息</th>
-                <th className="px-10 py-5 text-[10px] font-bold text-gray-400 uppercase tracking-widest">风险等级</th>
-                <th className="px-10 py-5 text-[10px] font-bold text-gray-400 uppercase tracking-widest">处理状态</th>
+                <th className="px-10 py-5 text-[10px] font-bold text-gray-400 uppercase tracking-widest">{t("版本")}</th>
+                <th className="px-10 py-5 text-[10px] font-bold text-gray-400 uppercase tracking-widest">{t("时间轴 (TC)")}</th>
+                <th className="px-10 py-5 text-[10px] font-bold text-gray-400 uppercase tracking-widest">{t("问题类别")}</th>
+                <th className="px-10 py-5 text-[10px] font-bold text-gray-400 uppercase tracking-widest">{t("描述信息")}</th>
+                <th className="px-10 py-5 text-[10px] font-bold text-gray-400 uppercase tracking-widest">{t("风险等级")}</th>
+                <th className="px-10 py-5 text-[10px] font-bold text-gray-400 uppercase tracking-widest">{t("处理状态")}</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-50">
@@ -110,16 +112,16 @@ const AuditHistory: React.FC = () => {
                     <span className="text-sm font-mono font-bold text-blue-600">{issue.timecode}</span>
                   </td>
                   <td className="px-10 py-6">
-                    <span className="text-xs font-bold text-gray-700">{issue.type}</span>
+                    <span className="text-xs font-bold text-gray-700">{t(issue.type)}</span>
                   </td>
                   <td className="px-10 py-6">
-                    <p className="text-xs text-gray-500 leading-relaxed italic line-clamp-1 group-hover:line-clamp-none transition-all">“{issue.description}”</p>
+                    <p className="text-xs text-gray-500 leading-relaxed italic line-clamp-1 group-hover:line-clamp-none transition-all">“{t(issue.description)}”</p>
                   </td>
                   <td className="px-10 py-6">
                     <span className={`text-[10px] font-bold uppercase tracking-widest ${
                       issue.risk === 'HIGH' ? 'text-red-500' : issue.risk === 'MEDIUM' ? 'text-amber-500' : 'text-green-500'
                     }`}>
-                      {issue.risk}
+                      {t(issue.risk)}
                     </span>
                   </td>
                   <td className="px-10 py-6">
@@ -127,14 +129,14 @@ const AuditHistory: React.FC = () => {
                       issue.status === '已修正' ? 'bg-green-50 text-green-600' : 
                       issue.status === '待处理' ? 'bg-amber-50 text-amber-600' : 'bg-gray-100 text-gray-400'
                     }`}>
-                      {issue.status}
+                      {t(issue.status)}
                     </span>
                   </td>
                 </tr>
               ))}
               {currentIssues.length === 0 && (
                 <tr>
-                  <td colSpan={6} className="px-10 py-20 text-center text-gray-300 text-sm italic">该影片暂无内容审核记录</td>
+                  <td colSpan={6} className="px-10 py-20 text-center text-gray-300 text-sm italic">{t("该影片暂无内容审核记录")}</td>
                 </tr>
               )}
             </tbody>
@@ -147,20 +149,20 @@ const AuditHistory: React.FC = () => {
         <div className="px-10 py-6 border-b border-gray-50 flex items-center justify-between bg-gray-50/20">
           <div className="flex items-center gap-3">
              <svg className="w-5 h-5 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"/></svg>
-             <h3 className="text-sm font-bold text-gray-400 uppercase tracking-widest">历史版本对比记录 (Comparison History)</h3>
+             <h3 className="text-sm font-bold text-gray-400 uppercase tracking-widest">{t("历史版本对比记录 (Comparison History)")}</h3>
           </div>
-          <span className="text-[10px] font-bold text-gray-300 uppercase tracking-widest">共 {currentLogs.length} 条对比记录</span>
+          <span className="text-[10px] font-bold text-gray-300 uppercase tracking-widest">{t("共")} {currentLogs.length} {t("条对比记录")}</span>
         </div>
         <div className="overflow-x-auto">
           <table className="w-full text-left">
             <thead>
               <tr className="border-b border-gray-50">
-                <th className="px-10 py-6 text-[10px] font-bold text-gray-400 uppercase tracking-widest">基准版本 (Base)</th>
-                <th className="px-10 py-6 text-[10px] font-bold text-gray-400 uppercase tracking-widest">目标版本 (Target)</th>
-                <th className="px-10 py-6 text-[10px] font-bold text-gray-400 uppercase tracking-widest">差异点总数</th>
-                <th className="px-10 py-6 text-[10px] font-bold text-gray-400 uppercase tracking-widest">执行操作员</th>
-                <th className="px-10 py-6 text-[10px] font-bold text-gray-400 uppercase tracking-widest">最终结论</th>
-                <th className="px-10 py-6 text-[10px] font-bold text-gray-400 uppercase tracking-widest">记录时间</th>
+                <th className="px-10 py-6 text-[10px] font-bold text-gray-400 uppercase tracking-widest">{t("基准版本 (Base)")}</th>
+                <th className="px-10 py-6 text-[10px] font-bold text-gray-400 uppercase tracking-widest">{t("目标版本 (Target)")}</th>
+                <th className="px-10 py-6 text-[10px] font-bold text-gray-400 uppercase tracking-widest">{t("差异点总数")}</th>
+                <th className="px-10 py-6 text-[10px] font-bold text-gray-400 uppercase tracking-widest">{t("执行操作员")}</th>
+                <th className="px-10 py-6 text-[10px] font-bold text-gray-400 uppercase tracking-widest">{t("最终结论")}</th>
+                <th className="px-10 py-6 text-[10px] font-bold text-gray-400 uppercase tracking-widest">{t("记录时间")}</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-50">
@@ -173,13 +175,13 @@ const AuditHistory: React.FC = () => {
                     <span className="px-3 py-1.5 bg-blue-50 text-blue-600 text-xs font-mono font-bold rounded-lg">{log.targetVersion}</span>
                   </td>
                   <td className="px-10 py-7">
-                    <span className="text-sm font-bold text-gray-700">{log.diffCount} 个采样点</span>
+                    <span className="text-sm font-bold text-gray-700">{log.diffCount} {t("个采样点")}</span>
                   </td>
                   <td className="px-10 py-7">
-                    <span className="text-sm font-medium text-gray-500">{log.operator}</span>
+                    <span className="text-sm font-medium text-gray-500">{t(log.operator)}</span>
                   </td>
                   <td className="px-10 py-7">
-                    <span className="text-xs font-bold text-[#1D1D1F]">{log.conclusion}</span>
+                    <span className="text-xs font-bold text-[#1D1D1F]">{t(log.conclusion)}</span>
                   </td>
                   <td className="px-10 py-7">
                     <span className="text-xs font-mono text-gray-400">{log.date}</span>
@@ -188,7 +190,7 @@ const AuditHistory: React.FC = () => {
               ))}
               {currentLogs.length === 0 && (
                 <tr>
-                  <td colSpan={6} className="px-10 py-20 text-center text-gray-300 text-sm italic">暂无对比审核记录</td>
+                  <td colSpan={6} className="px-10 py-20 text-center text-gray-300 text-sm italic">{t("暂无对比审核记录")}</td>
                 </tr>
               )}
             </tbody>

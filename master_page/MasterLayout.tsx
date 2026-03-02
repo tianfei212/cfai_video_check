@@ -1,6 +1,7 @@
 
 import React, { useState } from 'react';
-import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import NotificationOverlay from '../components/NotificationOverlay';
 
 const NavLink: React.FC<{ to: string; label: string; active: boolean }> = ({ to, label, active }) => (
@@ -51,21 +52,37 @@ const TreeItem: React.FC<{
   children?: React.ReactNode;
   to?: string;
   active?: boolean;
-  onWorkClick?: (e: React.MouseEvent) => void;
-}> = ({ label, level, children, to, active, onWorkClick }) => {
+}> = ({ label, level, children, to, active }) => {
   const [isOpen, setIsOpen] = useState(false);
   const hasChildren = !!children;
+  const rowClassName = `
+    flex items-center gap-2 py-2 px-4 rounded-lg cursor-pointer transition-all text-sm
+    ${level === 1 ? 'font-bold text-gray-700 hover:bg-gray-50' : 'text-gray-500 hover:text-black hover:bg-gray-50'}
+    ${active ? 'bg-gray-100 text-black' : ''}
+  `;
+  const rowStyle = { paddingLeft: `${level * 16}px` };
+  const handleClick = () => {
+    if (!hasChildren) return;
+    setIsOpen(!isOpen);
+  };
+
+  if (to && !hasChildren) {
+    return (
+      <div className="flex flex-col group/tree">
+        <Link to={to} className={rowClassName} style={rowStyle}>
+          <div className="w-3" />
+          <span className="flex-1">{label}</span>
+        </Link>
+      </div>
+    );
+  }
 
   return (
     <div className="flex flex-col group/tree">
       <div 
-        onClick={() => setIsOpen(!isOpen)}
-        className={`
-          flex items-center gap-2 py-2 px-4 rounded-lg cursor-pointer transition-all text-sm
-          ${level === 1 ? 'font-bold text-gray-700 hover:bg-gray-50' : 'text-gray-500 hover:text-black hover:bg-gray-50'}
-          ${active ? 'bg-gray-100 text-black' : ''}
-        `}
-        style={{ paddingLeft: `${level * 16}px` }}
+        onClick={handleClick}
+        className={rowClassName}
+        style={rowStyle}
       >
         {hasChildren && (
           <svg 
@@ -77,24 +94,9 @@ const TreeItem: React.FC<{
         )}
         {!hasChildren && <div className="w-3" />}
         {to ? (
-          <Link to={to} className="flex-1">{label}</Link>
+          <Link to={to} className="flex-1" onClick={(e) => hasChildren && e.stopPropagation()}>{label}</Link>
         ) : (
           <span className="flex-1">{label}</span>
-        )}
-        
-        {level === 2 && onWorkClick && (
-          <button
-            onClick={(e) => {
-              e.stopPropagation();
-              onWorkClick(e);
-            }}
-            className="p-1 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-md transition-all opacity-0 group-hover/tree:opacity-100"
-            title="进入工作"
-          >
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-            </svg>
-          </button>
         )}
       </div>
       {isOpen && children && (
@@ -107,8 +109,8 @@ const TreeItem: React.FC<{
 };
 
 export const MasterLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const { t } = useTranslation();
   const location = useLocation();
-  const navigate = useNavigate();
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const [isNotificationOpen, setIsNotificationOpen] = useState(false);
   const [isMovieLibExpanded, setIsMovieLibExpanded] = useState(false);
@@ -118,18 +120,10 @@ export const MasterLayout: React.FC<{ children: React.ReactNode }> = ({ children
     {
       id: 'm1',
       name: '流浪地球 3',
-      versions: [
-        { id: 'v1', name: '预告片 v1.0', path: '/video-analysis/1' },
-        { id: 'v2', name: '正片 剪辑版 A', path: '/video-analysis/2' },
-        { id: 'v3', name: '正片 剪辑版 B', path: '/video-analysis/3' },
-      ]
     },
     {
       id: 'm2',
       name: '封神第二部',
-      versions: [
-        { id: 'v3', name: '送审版 v1', path: '/video-analysis/3' },
-      ]
     }
   ];
 
@@ -144,7 +138,7 @@ export const MasterLayout: React.FC<{ children: React.ReactNode }> = ({ children
           <button 
             onClick={toggleSidebar}
             className="p-2 hover:bg-gray-100 rounded-lg transition-colors text-gray-500 hover:text-black"
-            title={isSidebarOpen ? "隐藏侧边栏" : "显示侧边栏"}
+            title={isSidebarOpen ? t("隐藏侧边栏") : t("显示侧边栏")}
           >
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h10M4 18h16" />
@@ -154,13 +148,13 @@ export const MasterLayout: React.FC<{ children: React.ReactNode }> = ({ children
           <div className="flex items-center gap-2 ml-2">
             <div className="w-7 h-7 bg-black rounded-lg flex items-center justify-center text-white font-bold italic text-xs">C</div>
             <div className="flex flex-col">
-              <span className="text-xs font-bold tracking-tight leading-none">中国电影AI研究院</span>
+              <span className="text-xs font-bold tracking-tight leading-none">{t("中国电影AI研究院")}</span>
               <span className="text-[7px] text-gray-400 font-bold uppercase tracking-widest mt-0.5">Audit System</span>
             </div>
           </div>
           
           <nav className="hidden lg:flex items-center gap-1 ml-6">
-            <NavLink to="/list" label="工作台" active={location.pathname === '/list'} />
+            <NavLink to="/list" label={t("工作台")} active={location.pathname === '/list'} />
           </nav>
         </div>
 
@@ -195,18 +189,17 @@ export const MasterLayout: React.FC<{ children: React.ReactNode }> = ({ children
           `}
         >
           <div className="space-y-2 flex-1">
-            <p className="px-4 text-[10px] font-bold text-gray-300 uppercase tracking-widest mb-4">核心业务</p>
+            <p className="px-4 text-[10px] font-bold text-gray-300 uppercase tracking-widest mb-4">{t("核心业务")}</p>
             
             {/* 影片库 - Tree 结构 */}
             <SidebarItem 
               icon={<svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>}
-              label="影片库"
+              label={t("影片库")}
               onClick={() => setIsMovieLibExpanded(!isMovieLibExpanded)}
               isExpandable={true}
               isExpanded={isMovieLibExpanded}
-              active={location.pathname === '/list'}
+              active={location.pathname === '/list' || location.pathname.startsWith('/project/')}
             />
-            {/* 这是第三级图标按键的跳转部分 */}
             {isMovieLibExpanded && (
               <div className="ml-4 mt-1 space-y-1 border-l border-gray-100 animate-in slide-in-from-top-2 duration-300">
                 {movieData.map(movie => (
@@ -214,33 +207,9 @@ export const MasterLayout: React.FC<{ children: React.ReactNode }> = ({ children
                     key={movie.id} 
                     label={movie.name} 
                     level={1}
-                  >
-                    {movie.versions.map(version => (
-                      <TreeItem 
-                        key={version.id} 
-                        label={version.name} 
-                        level={2} 
-                        to={version.path}
-                        active={location.pathname === version.path}
-                        onWorkClick={() => {
-                          // 点击版本的"进入工作"，直接跳转到 AuditDetail 页面
-                          // 将当前选择的版本作为 baseId 和 baseName
-                          // 将该电影下的其他版本以 JSON 列表 (Map) 的方式传入，key 为 ID，value 为 name
-                          const otherVersions = movie.versions
-                            .filter(v => v.id !== version.id)
-                            .reduce((acc, v) => ({ ...acc, [v.id]: v.name }), {});
-
-                          navigate(`/audit/${version.id}`, { 
-                            state: { 
-                              baseId: version.id, 
-                              baseName: version.name,
-                              compareVersions: otherVersions
-                            } 
-                          });
-                        }}
-                      />
-                    ))}
-                  </TreeItem>
+                    to={`/project/${movie.id}`}
+                    active={location.pathname === `/project/${movie.id}`}
+                  />
                 ))}
               </div>
             )}
@@ -248,7 +217,7 @@ export const MasterLayout: React.FC<{ children: React.ReactNode }> = ({ children
             <SidebarItem 
               to="/audit/history"
               icon={<svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012-2"/></svg>}
-              label="审核日志"
+              label={t("审核日志")}
               active={location.pathname === '/audit/history'}
             />
           </div>
@@ -256,7 +225,7 @@ export const MasterLayout: React.FC<{ children: React.ReactNode }> = ({ children
             <SidebarItem 
               to="/settings" 
               icon={<svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37a1.724 1.724 0 002.572-1.065z"/><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>} 
-              label="设置中心" 
+              label={t("设置中心")} 
               active={location.pathname === '/settings'} 
             />
             <Link 
@@ -264,7 +233,7 @@ export const MasterLayout: React.FC<{ children: React.ReactNode }> = ({ children
               className="flex items-center gap-3 px-4 py-3 rounded-xl text-red-400 hover:bg-red-50 hover:text-red-500 transition-all duration-300 whitespace-nowrap"
             >
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/></svg>
-              <span className="text-sm font-bold tracking-tight">安全退出</span>
+              <span className="text-sm font-bold tracking-tight">{t("安全退出")}</span>
             </Link>
           </div>
         </aside>
