@@ -1,9 +1,8 @@
 import React, { useState, useRef, useEffect, useCallback, useMemo } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useNavigate, useParams, useLocation } from 'react-router-dom';
 
 const TOTAL_FRAMES = 23904;
 const TOTAL_SECONDS = 195; // 3:15
-const MOVIE_NAME = "流浪地球3";
 
 interface Shot {
   id: string;
@@ -43,9 +42,26 @@ interface HistoryLog {
   details: string;
 }
 
-const VideoAnalysis: React.FC = () => {
+interface VideoAnalysisProps {
+  id?: string;
+  baseName?: string;
+  onClose?: () => void;
+  isModal?: boolean;
+}
+
+const VideoAnalysis: React.FC<VideoAnalysisProps> = ({ id: propsId, baseName: propsBaseName, onClose, isModal }) => {
   const navigate = useNavigate();
-  const { id } = useParams();
+  const location = useLocation();
+  const { id: paramsId } = useParams();
+  
+  // 从 state 或 URL 查询参数中获取 baseName
+  const state = location.state as { baseName?: string } | null;
+  const searchParams = new URLSearchParams(location.search);
+  const queryBaseName = searchParams.get('baseName');
+  
+  const id = propsId || paramsId;
+  const MOVIE_NAME = propsBaseName || state?.baseName || queryBaseName || "流浪地球3";
+  
   const [progress, setProgress] = useState(42.5);
   const [isDragging, setIsDragging] = useState(false);
   const [sidebarTab, setSidebarTab] = useState<'detection' | 'history'>('detection');
@@ -375,12 +391,21 @@ const VideoAnalysis: React.FC = () => {
   }, [isTabPressed, isCmdOrCtrlPressed, isManualTagMode, isShiftPressed]);
 
   return (
-    <div className={`fixed inset-0 bg-[#0A0A0B] text-white flex flex-col font-sans overflow-hidden select-none ${cursorClass}`}>
+    <div className={`${isModal ? 'relative h-full w-full' : 'fixed inset-0'} bg-[#0A0A0B] text-white flex flex-col font-sans overflow-hidden select-none ${cursorClass}`}>
       {/* 顶部工具栏 */}
       <header className="h-14 border-b border-white/5 flex items-center justify-between px-6 bg-black/40 backdrop-blur-md z-30">
         <div className="flex items-center gap-6">
-          <button onClick={() => navigate(-1)} className="p-1.5 hover:bg-white/10 rounded-lg transition-colors text-gray-400 hover:text-white">
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"/></svg>
+          <button 
+            onClick={() => isModal && onClose ? onClose() : navigate(-1)} 
+            className="p-1.5 hover:bg-white/10 rounded-lg transition-colors text-gray-400 hover:text-white"
+          >
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              {isModal ? (
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"/>
+              ) : (
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 19l-7-7 7-7"/>
+              )}
+            </svg>
           </button>
           <div className="flex flex-col">
             <span className="text-xs font-bold tracking-tight text-white/90">{MOVIE_NAME} - 专家审核工作台</span>

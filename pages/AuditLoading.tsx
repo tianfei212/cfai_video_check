@@ -6,7 +6,7 @@ const AuditLoading: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const [progress, setProgress] = useState(0);
-  const { targetId, baseId } = location.state || {};
+  const { targetId, targetName, baseId, baseName } = location.state || {};
 
   useEffect(() => {
     // 3秒进度模拟
@@ -20,8 +20,16 @@ const AuditLoading: React.FC = () => {
 
       if (nextProgress >= 100) {
         clearInterval(interval);
-        // 跳转到 AuditDetail，并保留对比 ID 信息
-        navigate(`/audit/${targetId}`, { state: { baseId, targetId }, replace: true });
+        // 跳转到 AuditDetail，并保留对比 ID 和名称信息
+        navigate(`/audit/${targetId}`, { 
+          state: { 
+            baseId, 
+            baseName, 
+            targetId, 
+            targetName 
+          }, 
+          replace: true 
+        });
       }
     }, 16);
 
@@ -71,11 +79,11 @@ const AuditLoading: React.FC = () => {
         <div className="mt-20 grid grid-cols-2 gap-x-12 gap-y-4 w-full border-t border-white/5 pt-10">
            <div className="flex flex-col gap-1">
               <span className="text-[8px] text-gray-600 font-bold uppercase">Base Version</span>
-              <span className="text-xs font-mono font-bold text-gray-400">V1.0_ORIGINAL</span>
+              <span className="text-xs font-mono font-bold text-gray-400">{baseName || 'V1.0_ORIGINAL'}</span>
            </div>
            <div className="flex flex-col gap-1 text-right">
               <span className="text-[8px] text-gray-600 font-bold uppercase">Target Version</span>
-              <span className="text-xs font-mono font-bold text-blue-400">V1.2_REVISED</span>
+              <span className="text-xs font-mono font-bold text-blue-400">{targetName || 'V1.2_REVISED'}</span>
            </div>
         </div>
       </div>

@@ -1,6 +1,6 @@
 
 import React, { useState } from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import NotificationOverlay from '../components/NotificationOverlay';
 
 const NavLink: React.FC<{ to: string; label: string; active: boolean }> = ({ to, label, active }) => (
@@ -14,28 +14,123 @@ const NavLink: React.FC<{ to: string; label: string; active: boolean }> = ({ to,
   </Link>
 );
 
-const SidebarItem: React.FC<{ to: string; icon: React.ReactNode; label: string; active: boolean }> = ({ to, icon, label, active }) => (
-  <Link
-    to={to}
-    className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-300 whitespace-nowrap ${
-      active 
-        ? 'bg-black text-white shadow-lg' 
-        : 'text-gray-500 hover:bg-gray-100 hover:text-gray-900'
-    }`}
-  >
-    {icon}
-    <span className="text-sm font-bold tracking-tight">{label}</span>
-  </Link>
-);
+const SidebarItem: React.FC<{ to?: string; icon: React.ReactNode; label: string; active?: boolean; onClick?: () => void; isExpandable?: boolean; isExpanded?: boolean }> = ({ to, icon, label, active, onClick, isExpandable, isExpanded }) => {
+  const content = (
+    <div
+      onClick={onClick}
+      className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-300 whitespace-nowrap cursor-pointer ${
+        active 
+          ? 'bg-black text-white shadow-lg' 
+          : 'text-gray-500 hover:bg-gray-100 hover:text-gray-900'
+      }`}
+    >
+      {icon}
+      <span className="text-sm font-bold tracking-tight flex-1">{label}</span>
+      {isExpandable && (
+        <svg 
+          className={`w-4 h-4 transition-transform duration-300 ${isExpanded ? 'rotate-180' : ''}`} 
+          fill="none" 
+          stroke="currentColor" 
+          viewBox="0 0 24 24"
+        >
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
+        </svg>
+      )}
+    </div>
+  );
+
+  if (to && !isExpandable) {
+    return <Link to={to}>{content}</Link>;
+  }
+  return content;
+};
+
+const TreeItem: React.FC<{ 
+  label: string; 
+  level: number; 
+  children?: React.ReactNode;
+  to?: string;
+  active?: boolean;
+  onWorkClick?: (e: React.MouseEvent) => void;
+}> = ({ label, level, children, to, active, onWorkClick }) => {
+  const [isOpen, setIsOpen] = useState(false);
+  const hasChildren = !!children;
+
+  return (
+    <div className="flex flex-col group/tree">
+      <div 
+        onClick={() => setIsOpen(!isOpen)}
+        className={`
+          flex items-center gap-2 py-2 px-4 rounded-lg cursor-pointer transition-all text-sm
+          ${level === 1 ? 'font-bold text-gray-700 hover:bg-gray-50' : 'text-gray-500 hover:text-black hover:bg-gray-50'}
+          ${active ? 'bg-gray-100 text-black' : ''}
+        `}
+        style={{ paddingLeft: `${level * 16}px` }}
+      >
+        {hasChildren && (
+          <svg 
+            className={`w-3 h-3 transition-transform duration-200 ${isOpen ? 'rotate-90' : ''}`} 
+            fill="none" stroke="currentColor" viewBox="0 0 24 24"
+          >
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M9 5l7 7-7 7" />
+          </svg>
+        )}
+        {!hasChildren && <div className="w-3" />}
+        {to ? (
+          <Link to={to} className="flex-1">{label}</Link>
+        ) : (
+          <span className="flex-1">{label}</span>
+        )}
+        
+        {level === 2 && onWorkClick && (
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              onWorkClick(e);
+            }}
+            className="p-1 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-md transition-all opacity-0 group-hover/tree:opacity-100"
+            title="进入工作"
+          >
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+            </svg>
+          </button>
+        )}
+      </div>
+      {isOpen && children && (
+        <div className="flex flex-col">
+          {children}
+        </div>
+      )}
+    </div>
+  );
+};
 
 export const MasterLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const location = useLocation();
+  const navigate = useNavigate();
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const [isNotificationOpen, setIsNotificationOpen] = useState(false);
+  const [isMovieLibExpanded, setIsMovieLibExpanded] = useState(false);
 
-  const menuItems = [
-    { to: '/list', label: '影片库', icon: <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg> },
-    { to: '/audit/history', label: '审核日志', icon: <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012-2"/></svg> },
+  // 模拟的影片数据结构
+  const movieData = [
+    {
+      id: 'm1',
+      name: '流浪地球 3',
+      versions: [
+        { id: 'v1', name: '预告片 v1.0', path: '/video-analysis/1' },
+        { id: 'v2', name: '正片 剪辑版 A', path: '/video-analysis/2' },
+        { id: 'v3', name: '正片 剪辑版 B', path: '/video-analysis/3' },
+      ]
+    },
+    {
+      id: 'm2',
+      name: '封神第二部',
+      versions: [
+        { id: 'v3', name: '送审版 v1', path: '/video-analysis/3' },
+      ]
+    }
   ];
 
   const toggleSidebar = () => setIsSidebarOpen(!isSidebarOpen);
@@ -101,15 +196,61 @@ export const MasterLayout: React.FC<{ children: React.ReactNode }> = ({ children
         >
           <div className="space-y-2 flex-1">
             <p className="px-4 text-[10px] font-bold text-gray-300 uppercase tracking-widest mb-4">核心业务</p>
-            {menuItems.map((item) => (
-              <SidebarItem 
-                key={item.to}
-                to={item.to}
-                icon={item.icon}
-                label={item.label}
-                active={location.pathname === item.to}
-              />
-            ))}
+            
+            {/* 影片库 - Tree 结构 */}
+            <SidebarItem 
+              icon={<svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>}
+              label="影片库"
+              onClick={() => setIsMovieLibExpanded(!isMovieLibExpanded)}
+              isExpandable={true}
+              isExpanded={isMovieLibExpanded}
+              active={location.pathname === '/list'}
+            />
+            {/* 这是第三级图标按键的跳转部分 */}
+            {isMovieLibExpanded && (
+              <div className="ml-4 mt-1 space-y-1 border-l border-gray-100 animate-in slide-in-from-top-2 duration-300">
+                {movieData.map(movie => (
+                  <TreeItem 
+                    key={movie.id} 
+                    label={movie.name} 
+                    level={1}
+                  >
+                    {movie.versions.map(version => (
+                      <TreeItem 
+                        key={version.id} 
+                        label={version.name} 
+                        level={2} 
+                        to={version.path}
+                        active={location.pathname === version.path}
+                        onWorkClick={() => {
+                          // 点击版本的"进入工作"，直接跳转到 AuditDetail 页面
+                          // 将当前选择的版本作为 baseId 和 baseName
+                          // 将该电影下的其他版本以 JSON 列表 (Map) 的方式传入，key 为 ID，value 为 name
+                          const otherVersions = movie.versions
+                            .filter(v => v.id !== version.id)
+                            .reduce((acc, v) => ({ ...acc, [v.id]: v.name }), {});
+
+                          navigate(`/audit/${version.id}`, { 
+                            state: { 
+                              baseId: version.id, 
+                              baseName: version.name,
+                              compareVersions: otherVersions
+                            } 
+                          });
+                        }}
+                      />
+                    ))}
+                  </TreeItem>
+                ))}
+              </div>
+            )}
+
+            <SidebarItem 
+              to="/audit/history"
+              icon={<svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012-2"/></svg>}
+              label="审核日志"
+              active={location.pathname === '/audit/history'}
+            />
           </div>
           <div className="mt-auto space-y-2 pt-6 border-t border-gray-50">
             <SidebarItem 
@@ -129,16 +270,16 @@ export const MasterLayout: React.FC<{ children: React.ReactNode }> = ({ children
         </aside>
 
         {/* 右侧内容区 - 宽度自适应 */}
-        <div className={`flex-1 flex flex-col overflow-y-auto no-scrollbar transition-all duration-500 ease-in-out`}>
-          <main className="flex-1 p-6 lg:p-10">
-            <div className="max-w-7xl mx-auto">
+        <div className={`flex-1 flex flex-col h-full overflow-hidden transition-all duration-500 ease-in-out`}>
+          <main className="flex-1 p-4 lg:p-6 overflow-y-auto no-scrollbar">
+            <div className="w-full h-full flex flex-col">
               {children}
             </div>
           </main>
 
           {/* 页脚 Footer */}
-          <footer className="px-10 py-6 border-t border-gray-100 bg-white/50 backdrop-blur-sm">
-            <div className="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-4">
+          <footer className="px-6 py-4 border-t border-gray-100 bg-white/50 backdrop-blur-sm">
+            <div className="w-full flex flex-col md:flex-row justify-between items-center gap-4">
               <div className="flex flex-col items-center md:items-start text-[10px] text-gray-300 font-bold uppercase tracking-widest">
                 <span>China Academy of Film Artificial Intelligence</span>
               </div>

@@ -21,8 +21,12 @@ import { MasterLayout } from './master_page/MasterLayout';
 
 const AppContent: React.FC = () => {
   const location = useLocation();
+  const searchParams = new URLSearchParams(location.search);
+  const isImmersiveQuery = searchParams.get('immersive') === 'true';
+  
   const isLoginPage = location.pathname === '/login';
   const isImmersivePage = 
+    isImmersiveQuery ||
     location.pathname.startsWith('/analysis/') || 
     location.pathname.startsWith('/final-confirm/') ||
     location.pathname.startsWith('/audit-loading') ||
