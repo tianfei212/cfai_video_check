@@ -9,12 +9,20 @@ interface TaskProgress {
   audit: number;
 }
 
+type AutoPipelineOptions = {
+  segment?: boolean;
+  audit?: boolean;
+};
+
 const AutoTasks: React.FC = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const location = useLocation();
   const isFromProject = location.state?.fromProject;
   const projectName = location.state?.projectName || '未命名工程_20231124';
+  const autoOptions = location.state?.autoOptions as AutoPipelineOptions | undefined;
+  const enableSegment = autoOptions?.segment ?? true;
+  const enableAudit = autoOptions?.audit ?? !isFromProject;
 
   // 初始进度
   const [progress, setProgress] = useState<TaskProgress>({ import: 0, segment: 0, audit: 0 });
@@ -29,21 +37,19 @@ const AutoTasks: React.FC = () => {
         // 第一阶段：导入/预处理
         if (next.import < 100) {
           next.import = Math.min(100, next.import + Math.random() * 10 + 5);
-        } 
+        }
         // 第二阶段：自动切分
-        else if (next.segment < 100) {
+        else if (enableSegment && next.segment < 100) {
           next.segment = Math.min(100, next.segment + Math.random() * 8 + 4);
         }
-        // 第三阶段：自动内容审核 (仅当不是从 ProjectDetail 上传新版本进入时才启动)
-        else if (!isFromProject && next.audit < 100) {
+        // 第三阶段：自动内容审核
+        else if (enableAudit && next.audit < 100) {
           next.audit = Math.min(100, next.audit + Math.random() * 6 + 3);
-        } 
-        // 结束判定：如果是新版本，切分完即视为完成；否则需要审核完
-        else if (isFromProject && next.segment === 100) {
-          setIsFinished(true);
-          clearInterval(timer);
         }
-        else if (!isFromProject && next.audit === 100) {
+
+        const segmentDone = enableSegment ? next.segment === 100 : true;
+        const auditDone = enableAudit ? next.audit === 100 : true;
+        if (next.import === 100 && segmentDone && auditDone) {
           setIsFinished(true);
           clearInterval(timer);
         }
@@ -53,7 +59,7 @@ const AutoTasks: React.FC = () => {
     }, 200);
 
     return () => clearInterval(timer);
-  }, [isFromProject]);
+  }, [enableAudit, enableSegment]);
 
   const ProgressBar: React.FC<{ value: number; active: boolean; label?: string }> = ({ value, active, label }) => (
     <div className="flex flex-col gap-2 w-full min-w-[140px] max-w-[200px]">
@@ -140,10 +146,14 @@ const AutoTasks: React.FC = () => {
                   <ProgressBar value={progress.import} active={progress.import > 0} />
                 </td>
                 <td className="px-8 py-10">
-                  <ProgressBar value={progress.segment} active={progress.import === 100} label="EST: 120M" />
+                  <ProgressBar value={progress.segment} active={enableSegment && progress.import === 100} label={enableSegment ? "EST: 120M" : "DISABLED"} />
                 </td>
                 <td className="px-8 py-10">
-                  <ProgressBar value={progress.audit} active={!isFromProject && progress.segment === 100} label={isFromProject ? "PAUSED" : "EST: 300M"} />
+                  <ProgressBar
+                    value={progress.audit}
+                    active={enableAudit && (enableSegment ? progress.segment === 100 : progress.import === 100)}
+                    label={enableAudit ? "EST: 300M" : "DISABLED"}
+                  />
                 </td>
               </tr>
             </tbody>
@@ -164,8 +174,8 @@ const AutoTasks: React.FC = () => {
           </div>
           <p className="text-sm text-gray-600 font-medium leading-relaxed italic">
             {isFinished 
-              ? (isFromProject ? t("新版本文件已成功预处理。切片索引已入库，您可以进入下一步核验版本信息。") : t("任务流处理已圆满结束。云端切片索引与内容特征向量已入库，请点击下方按钮进行最后的信息确认。"))
-              : (isFromProject ? t("系统正在加速处理新版本的云端切分，内容自检环节已根据您的策略暂时关闭。") : t("系统正调用云端 A100 集群进行深度解析。由于影片时长较大，自动切分与检测过程预计需要数小时，请稍后查收通知或保持页面开启。"))}
+              ? t("任务流处理已就绪。请点击下方按钮进入信息核验环节。")
+              : t("系统正在云端执行自动化任务。您也可以保持页面开启以实时查看进度。")}
           </p>
         </div>
 

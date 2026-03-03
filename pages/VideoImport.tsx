@@ -2,6 +2,11 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 
+type AutoPipelineOptions = {
+  segment: boolean;
+  audit: boolean;
+};
+
 const VideoImport: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
@@ -13,8 +18,14 @@ const VideoImport: React.FC = () => {
   const initialStep = queryParams.get('step') === '2' ? 2 : 1;
 
   const [step, setStep] = useState(initialStep);
-  const [isUploading, setIsUploading] = useState(false);
+  const [step1Mode, setStep1Mode] = useState<'select' | 'options' | 'uploading'>('select');
   const [progress, setProgress] = useState(0);
+  const [autoOptions, setAutoOptions] = useState<AutoPipelineOptions>({
+    segment: true,
+    audit: !isFromProject,
+  });
+  const [isSendingCommand, setIsSendingCommand] = useState(false);
+  const [commandError, setCommandError] = useState<string | null>(null);
 
   const circumference = 364.4;
 
@@ -24,8 +35,9 @@ const VideoImport: React.FC = () => {
     }
   }, [initialStep]);
 
-  const handleStartUpload = () => {
-    setIsUploading(true);
+  const handleStartUpload = (opts: AutoPipelineOptions) => {
+    setStep1Mode('uploading');
+    setProgress(0);
     let p = 0;
     const interval = setInterval(() => {
       p += Math.random() * 15;
@@ -33,13 +45,34 @@ const VideoImport: React.FC = () => {
         p = 100;
         clearInterval(interval);
         setTimeout(() => {
-          setIsUploading(false);
-          // 上传完成，进入自动化任务监测页面，并透传 state
-          navigate('/auto-tasks', { state: location.state });
+          if (opts.segment || opts.audit) {
+            navigate('/auto-tasks', {
+              state: { ...location.state, autoOptions: opts },
+            });
+            return;
+          }
+          setProgress(0);
+          setStep1Mode('select');
+          setStep(2);
         }, 800);
       }
       setProgress(p);
     }, 400);
+  };
+
+  const handleConfirmAutoOptions = async () => {
+    setIsSendingCommand(true);
+    setCommandError(null);
+    try {
+      await new Promise<void>((resolve) => {
+        setTimeout(() => resolve(), 400);
+      });
+      handleStartUpload(autoOptions);
+    } catch (e) {
+      setCommandError(e instanceof Error ? e.message : '指令发送失败');
+    } finally {
+      setIsSendingCommand(false);
+    }
   };
 
   const handleFinish = () => {
@@ -60,17 +93,18 @@ const VideoImport: React.FC = () => {
         </div>
       </div>
 
-      {/* 进度指示条 */}
+      {/* 进度指示条
       <div className="flex gap-4 mb-12 px-2">
         {[1, 2, 3].map((s) => (
           <div key={s} className={`h-1.5 flex-1 rounded-full transition-all duration-700 ${s <= step ? 'bg-black shadow-[0_0_8px_rgba(0,0,0,0.1)]' : 'bg-gray-100'}`}></div>
         ))}
       </div>
+      */}
 
       <div className="min-h-[400px]">
         {step === 1 && (
           <div className="apple-card p-16 flex flex-col items-center justify-center border-dashed border-2 border-gray-100 bg-white/50 mx-2">
-            {!isUploading ? (
+            {step1Mode === 'select' && (
               <div className="text-center max-w-sm">
                 <div className="w-24 h-24 bg-gray-50 rounded-[2rem] flex items-center justify-center mx-auto mb-8 shadow-inner">
                   <svg className="w-10 h-10 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/></svg>
@@ -78,7 +112,10 @@ const VideoImport: React.FC = () => {
                 <h3 className="text-xl font-bold mb-3">拖拽视频文件至此</h3>
                 <p className="text-sm text-gray-400 mb-10 leading-relaxed">支持 MP4, MOV, MKV 格式。文件将自动上传至研究院 OSS 节点并进行帧预处理。</p>
                 <button 
-                  onClick={handleStartUpload}
+                  onClick={() => {
+                    setCommandError(null);
+                    setStep1Mode('options');
+                  }}
                   className="px-12 py-4 bg-black text-white rounded-2xl text-sm font-bold shadow-2xl shadow-black/20 hover:scale-[1.02] active:scale-95 transition-all"
                 >
                   选择本地文件
@@ -91,7 +128,106 @@ const VideoImport: React.FC = () => {
                    </div>
                 </div>
               </div>
-            ) : (
+            )}
+
+            {step1Mode === 'options' && (
+              <div className="w-full max-w-xl">
+                <div className="text-center mb-10">
+                  <h3 className="text-2xl font-bold mb-3 tracking-tight">选择自动化处理</h3>
+                  <p className="text-sm text-gray-400 font-medium">根据需要手动勾选是否启动自动切分与自动内容检验。</p>
+                </div>
+
+                <div className="space-y-4">
+                  <label className="block">
+                    <div className="flex items-start gap-4 p-6 rounded-2xl border border-gray-100 bg-white shadow-sm hover:bg-gray-50/50 transition-colors">
+                      <input
+                        type="checkbox"
+                        checked={autoOptions.segment}
+                        onChange={(e) => setAutoOptions((prev) => ({ ...prev, segment: e.target.checked }))}
+                        className="mt-1 h-5 w-5 rounded border-gray-300 text-black focus:ring-black/10"
+                      />
+                      <div className="flex-1">
+                        <div className="flex items-center justify-between">
+                          <span className="text-sm font-bold text-[#1D1D1F]">自动切分</span>
+                          <span className="text-[10px] font-bold uppercase tracking-widest text-gray-300">SEGMENT</span>
+                        </div>
+                        <p className="text-xs text-gray-400 mt-1 leading-relaxed">云端自动生成片段切片索引，便于后续关键帧与镜头结构分析。</p>
+                      </div>
+                    </div>
+                  </label>
+
+                  <label className="block">
+                    <div className="flex items-start gap-4 p-6 rounded-2xl border border-gray-100 bg-white shadow-sm hover:bg-gray-50/50 transition-colors">
+                      <input
+                        type="checkbox"
+                        checked={autoOptions.audit}
+                        onChange={(e) => setAutoOptions((prev) => ({ ...prev, audit: e.target.checked }))}
+                        className="mt-1 h-5 w-5 rounded border-gray-300 text-black focus:ring-black/10"
+                      />
+                      <div className="flex-1">
+                        <div className="flex items-center justify-between">
+                          <span className="text-sm font-bold text-[#1D1D1F]">自动内容检验</span>
+                          <span className="text-[10px] font-bold uppercase tracking-widest text-gray-300">AUDIT</span>
+                        </div>
+                        <p className="text-xs text-gray-400 mt-1 leading-relaxed">
+                          触发内容一致性与合规性自检流程，提取特征向量并生成初步风险提示。
+                        </p>
+                      </div>
+                    </div>
+                  </label>
+                </div>
+
+                {commandError && (
+                  <div className="mt-6 p-5 rounded-2xl border border-red-100 bg-red-50 text-red-700 text-xs font-medium">
+                    {commandError}
+                  </div>
+                )}
+
+                <div className="mt-10 flex items-center justify-between">
+                  <button
+                    onClick={() => {
+                      setCommandError(null);
+                      setStep1Mode('select');
+                    }}
+                    className="px-10 py-4 text-sm font-bold text-gray-400 hover:text-black transition-colors"
+                    disabled={isSendingCommand}
+                  >
+                    返回
+                  </button>
+                  <div className="flex items-center gap-3">
+                    {!!commandError && !isSendingCommand && (
+                      <button
+                        onClick={() => handleStartUpload(autoOptions)}
+                        className="px-6 py-5 rounded-2xl text-sm font-bold border border-gray-100 bg-white text-gray-500 hover:bg-gray-50 transition-all"
+                      >
+                        跳过下发并继续
+                      </button>
+                    )}
+                    <button
+                      onClick={handleConfirmAutoOptions}
+                      disabled={isSendingCommand}
+                      className={`px-14 py-5 rounded-2xl text-sm font-bold shadow-2xl shadow-black/20 transition-all flex items-center gap-3 ${
+                        isSendingCommand ? 'bg-gray-200 text-gray-400 cursor-not-allowed' : 'bg-black text-white hover:scale-[1.02] active:scale-95'
+                      }`}
+                    >
+                      {isSendingCommand ? (
+                        <span className="inline-flex items-center gap-3">
+                          <span className="w-4 h-4 border-2 border-gray-400 border-t-transparent rounded-full animate-spin" />
+                          正在下发指令...
+                        </span>
+                      ) : (
+                        <>
+                          <span>确认并开始上云预处理</span>
+                          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M13 7l5 5m0 0l-5 5m5-5H6"/></svg>
+                        </>
+                      )}
+                    </button>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {step1Mode === 'uploading' && (
               <div className="w-full max-w-sm text-center">
                 <div className="relative w-40 h-40 mx-auto mb-10">
                   <svg className="w-full h-full transform -rotate-90" viewBox="0 0 128 128">

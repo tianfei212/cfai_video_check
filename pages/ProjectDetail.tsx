@@ -68,7 +68,7 @@ const ProjectDetail: React.FC = () => {
           <div className="w-1/6">{t("提交时间")}</div>
           <div className="w-1/6">{t("AI 分数 / 风险")}</div>
           <div className="w-1/6">{t("审核状态")}</div>
-          <div className="w-1/6 text-right pr-4">{t("操作")}</div>
+          {/*<div className="w-1/6 text-right pr-4">{t("操作")}</div>*/}
         </div>
 
         {MOCK_VERSIONS.map((version, index) => {
@@ -111,7 +111,7 @@ const ProjectDetail: React.FC = () => {
                 </span>
               </div>
 
-              <div className="w-1/6 text-right flex items-center justify-end gap-3 pr-4">
+              {/*<div className="w-1/6 text-right flex items-center justify-end gap-3 pr-4">
                 <button 
                   onClick={() => navigate(`/analysis/${version.id}`)}
                   className="px-4 py-2 bg-gray-100 text-[#1D1D1F] rounded-xl text-[11px] font-bold transition-all hover:bg-black hover:text-white flex items-center gap-2 group/btn"
@@ -125,7 +125,7 @@ const ProjectDetail: React.FC = () => {
                 >
                   {t("查看报告")}
                 </button>
-              </div>
+              </div>*/}
             </div>
           );
         })}

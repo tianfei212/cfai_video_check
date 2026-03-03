@@ -24,15 +24,7 @@ const KeyframeAnalysis: React.FC = () => {
             </div>
           </div>
         </div>
-        <div className="flex gap-3">
-          <button className="px-6 py-3 bg-white border border-gray-100 rounded-2xl text-xs font-bold hover:bg-gray-50 transition-all">{t("导出分析报告 (PDF/XML)")}</button>
-          <button 
-            onClick={() => navigate(`/analysis/${id}`)}
-            className="px-8 py-3 bg-black text-white rounded-2xl text-xs font-bold shadow-xl shadow-black/10 hover:scale-[1.02] transition-all"
-          >
-            {t("确认并进入审核")}
-          </button>
-        </div>
+       
       </div>
 
       {/* 专业审片列表容器 */}
