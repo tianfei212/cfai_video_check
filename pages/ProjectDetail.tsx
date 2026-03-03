@@ -57,7 +57,7 @@ const ProjectDetail: React.FC = () => {
             className="apple-button px-6 py-3 bg-white border border-gray-200 text-[#1D1D1F] text-sm font-bold shadow-sm hover:border-black transition-all flex items-center gap-2"
           >
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M14 3h7v7m0-7L10 14"/><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 5v14h14v-5"/></svg>
-            {t("打开 Matchbox")}
+            {t("对比核检")}
           </button>
         </div>
       </div>

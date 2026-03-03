@@ -37,8 +37,8 @@ const ReviewList: React.FC = () => {
       {/* 顶部标题与操作 */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight text-[#1D1D1F]">{t('影片项目库')}</h1>
-          <p className="text-gray-400 mt-1">{t('管理并分析研究院所有在研影片合规工程')}</p>
+          <h1 className="text-3xl font-bold tracking-tight text-[#1D1D1F]">{t('影片库')}</h1>
+          <p className="text-gray-400 mt-1">{t('最近1周内的影片工程')}</p>
         </div>
         <button 
           onClick={() => navigate('/create')}
