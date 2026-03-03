@@ -2,19 +2,29 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 
+type AutoPipelineOptions = {
+  segment: boolean;
+  audit: boolean;
+};
+
 const VideoImport: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const isFromProject = location.state?.fromProject;
   const projectNameFromState = location.state?.projectName;
+  const projectIdFromState = location.state?.projectId;
   
   // 根据 URL 参数初始化步骤，如果是从任务页返回，则直接进入 Step 2
   const queryParams = new URLSearchParams(location.search);
   const initialStep = queryParams.get('step') === '2' ? 2 : 1;
 
   const [step, setStep] = useState(initialStep);
-  const [isUploading, setIsUploading] = useState(false);
+  const [step1Mode, setStep1Mode] = useState<'select' | 'uploading'>('select');
   const [progress, setProgress] = useState(0);
+  const [autoOptions] = useState<AutoPipelineOptions>({
+    segment: false,
+    audit: false,
+  });
 
   const circumference = 364.4;
 
@@ -24,8 +34,9 @@ const VideoImport: React.FC = () => {
     }
   }, [initialStep]);
 
-  const handleStartUpload = () => {
-    setIsUploading(true);
+  const handleStartUpload = (opts: AutoPipelineOptions) => {
+    setStep1Mode('uploading');
+    setProgress(0);
     let p = 0;
     const interval = setInterval(() => {
       p += Math.random() * 15;
@@ -33,9 +44,15 @@ const VideoImport: React.FC = () => {
         p = 100;
         clearInterval(interval);
         setTimeout(() => {
-          setIsUploading(false);
-          // 上传完成，进入自动化任务监测页面，并透传 state
-          navigate('/auto-tasks', { state: location.state });
+          if (opts.segment || opts.audit) {
+            navigate('/auto-tasks', {
+              state: { ...location.state, autoOptions: opts },
+            });
+            return;
+          }
+          setProgress(0);
+          setStep1Mode('select');
+          setStep(2);
         }, 800);
       }
       setProgress(p);
@@ -49,7 +66,16 @@ const VideoImport: React.FC = () => {
   return (
     <div className="max-w-7xl mx-auto py-6 animate-in fade-in duration-700">
       <div className="flex items-center gap-4 mb-12">
-        <button onClick={() => navigate('/create')} className="p-2 hover:bg-gray-100 rounded-full transition-colors">
+        <button
+          onClick={() => {
+            if (isFromProject && projectIdFromState) {
+              navigate(`/project/${projectIdFromState}`);
+              return;
+            }
+            navigate('/list');
+          }}
+          className="p-2 hover:bg-gray-100 rounded-full transition-colors"
+        >
           <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 19l-7-7 7-7"/></svg>
         </button>
         <div>
@@ -60,17 +86,18 @@ const VideoImport: React.FC = () => {
         </div>
       </div>
 
-      {/* 进度指示条 */}
+      {/* 进度指示条
       <div className="flex gap-4 mb-12 px-2">
         {[1, 2, 3].map((s) => (
           <div key={s} className={`h-1.5 flex-1 rounded-full transition-all duration-700 ${s <= step ? 'bg-black shadow-[0_0_8px_rgba(0,0,0,0.1)]' : 'bg-gray-100'}`}></div>
         ))}
       </div>
+      */}
 
       <div className="min-h-[400px]">
         {step === 1 && (
           <div className="apple-card p-16 flex flex-col items-center justify-center border-dashed border-2 border-gray-100 bg-white/50 mx-2">
-            {!isUploading ? (
+            {step1Mode === 'select' && (
               <div className="text-center max-w-sm">
                 <div className="w-24 h-24 bg-gray-50 rounded-[2rem] flex items-center justify-center mx-auto mb-8 shadow-inner">
                   <svg className="w-10 h-10 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/></svg>
@@ -78,7 +105,9 @@ const VideoImport: React.FC = () => {
                 <h3 className="text-xl font-bold mb-3">拖拽视频文件至此</h3>
                 <p className="text-sm text-gray-400 mb-10 leading-relaxed">支持 MP4, MOV, MKV 格式。文件将自动上传至研究院 OSS 节点并进行帧预处理。</p>
                 <button 
-                  onClick={handleStartUpload}
+                  onClick={() => {
+                    handleStartUpload(autoOptions);
+                  }}
                   className="px-12 py-4 bg-black text-white rounded-2xl text-sm font-bold shadow-2xl shadow-black/20 hover:scale-[1.02] active:scale-95 transition-all"
                 >
                   选择本地文件
@@ -91,7 +120,9 @@ const VideoImport: React.FC = () => {
                    </div>
                 </div>
               </div>
-            ) : (
+            )}
+
+            {step1Mode === 'uploading' && (
               <div className="w-full max-w-sm text-center">
                 <div className="relative w-40 h-40 mx-auto mb-10">
                   <svg className="w-full h-full transform -rotate-90" viewBox="0 0 128 128">
@@ -101,7 +132,7 @@ const VideoImport: React.FC = () => {
                   <div className="absolute inset-0 flex items-center justify-center text-3xl font-bold tracking-tighter">{Math.round(progress)}%</div>
                 </div>
                 <h3 className="text-xl font-bold mb-2">正在上云预处理...</h3>
-                <p className="text-sm text-gray-400 font-medium">正在生成关键帧索引并进行色彩空间标准化</p>
+                <p className="text-sm text-gray-400 font-medium">正在进行色彩空间标准化</p>
               </div>
             )}
           </div>
@@ -174,7 +205,13 @@ const VideoImport: React.FC = () => {
                  <p className="text-sm opacity-50 font-medium">下一步将进入“关键帧序列分析”页面，查看 AI 提取的详细片段索引。</p>
                </div>
                <button 
-                 onClick={() => navigate('/keyframes/1001')} 
+                onClick={() => {
+                  if (isFromProject && projectIdFromState) {
+                    navigate(`/project/${projectIdFromState}`);
+                    return;
+                  }
+                  navigate('/list');
+                }} 
                  className="relative z-10 px-12 py-5 bg-white text-black rounded-2xl text-sm font-bold shadow-2xl hover:scale-[1.05] active:scale-95 transition-all flex items-center gap-3"
                >
                  <span>确认信息并下一步</span>
