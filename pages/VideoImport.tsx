@@ -12,6 +12,7 @@ const VideoImport: React.FC = () => {
   const location = useLocation();
   const isFromProject = location.state?.fromProject;
   const projectNameFromState = location.state?.projectName;
+  const projectIdFromState = location.state?.projectId;
   
   // 根据 URL 参数初始化步骤，如果是从任务页返回，则直接进入 Step 2
   const queryParams = new URLSearchParams(location.search);
@@ -82,7 +83,16 @@ const VideoImport: React.FC = () => {
   return (
     <div className="max-w-7xl mx-auto py-6 animate-in fade-in duration-700">
       <div className="flex items-center gap-4 mb-12">
-        <button onClick={() => navigate('/create')} className="p-2 hover:bg-gray-100 rounded-full transition-colors">
+        <button
+          onClick={() => {
+            if (isFromProject && projectIdFromState) {
+              navigate(`/project/${projectIdFromState}`);
+              return;
+            }
+            navigate('/list');
+          }}
+          className="p-2 hover:bg-gray-100 rounded-full transition-colors"
+        >
           <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 19l-7-7 7-7"/></svg>
         </button>
         <div>
@@ -237,7 +247,7 @@ const VideoImport: React.FC = () => {
                   <div className="absolute inset-0 flex items-center justify-center text-3xl font-bold tracking-tighter">{Math.round(progress)}%</div>
                 </div>
                 <h3 className="text-xl font-bold mb-2">正在上云预处理...</h3>
-                <p className="text-sm text-gray-400 font-medium">正在生成关键帧索引并进行色彩空间标准化</p>
+                <p className="text-sm text-gray-400 font-medium">正在进行色彩空间标准化</p>
               </div>
             )}
           </div>
@@ -310,7 +320,13 @@ const VideoImport: React.FC = () => {
                  <p className="text-sm opacity-50 font-medium">下一步将进入“关键帧序列分析”页面，查看 AI 提取的详细片段索引。</p>
                </div>
                <button 
-                 onClick={() => navigate('/keyframes/1001')} 
+                onClick={() => {
+                  if (isFromProject && projectIdFromState) {
+                    navigate(`/project/${projectIdFromState}`);
+                    return;
+                  }
+                  navigate('/list');
+                }} 
                  className="relative z-10 px-12 py-5 bg-white text-black rounded-2xl text-sm font-bold shadow-2xl hover:scale-[1.05] active:scale-95 transition-all flex items-center gap-3"
                >
                  <span>确认信息并下一步</span>

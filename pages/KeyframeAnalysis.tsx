@@ -13,7 +13,7 @@ const KeyframeAnalysis: React.FC = () => {
       {/* 顶部导航与专业操作 */}
       <div className="flex items-center justify-between mb-8 px-2">
         <div className="flex items-center gap-5">
-          <button onClick={() => navigate(-1)} className="p-3 bg-white border border-gray-100 rounded-2xl hover:bg-gray-50 transition-all shadow-sm group">
+          <button onClick={() => navigate(`/project/${id || ''}`)} className="p-3 bg-white border border-gray-100 rounded-2xl hover:bg-gray-50 transition-all shadow-sm group">
             <svg className="w-5 h-5 text-gray-400 group-hover:text-black transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 19l-7-7 7-7"/></svg>
           </button>
           <div>
